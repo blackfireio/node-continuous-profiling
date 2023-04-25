@@ -1,0 +1,28 @@
+{
+  "name": "@blackfire/nodejs",
+  "version": "0.1.0",
+  "description": "",
+  "main": "src/index.js",
+  "exports": {
+    ".": {
+      "import": "./src/index.js",
+      "require": "./src/index.js"
+    }
+  },
+  "scripts": {
+    "test": "jest --no-cache --runInBand --forceExit --detectOpenHandles"
+  },
+  "author": "blackfire.io",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.26.1",
+    "debug": "^4.3.3",
+    "form-data": "^4.0.0",
+    "pprof": "^3.2.0"
+  },
+  "devDependencies": {
+    "express": "^4.18.2",
+    "express-fileupload": "^1.4.0",
+    "jest": "^29.5.0"
+  }
+}
