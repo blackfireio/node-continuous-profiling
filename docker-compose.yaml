@@ -1,0 +1,11 @@
+version: "3.5"
+
+services:
+  nodejs:
+    build: ./docker
+    entrypoint: /blackfire/docker/entrypoint.sh
+    command: /true
+    working_dir: /blackfire
+    volumes:
+      - ./:/blackfire
+      - /etc/passwd:/etc/passwd:ro
