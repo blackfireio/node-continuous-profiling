@@ -5,65 +5,104 @@ const debug = require('debug');
 
 const log = debug('blackfire');
 
-let isProfilerRunning = false;
+let _currentProfilingSession = {
+    // The function to stop current profiling (if any) and retrieve profile
+    stopAndCollect: undefined,
+    // Since properties above can be reset periodically, this variable holds the status actually exposed
+    isRunning: false,
+};
 
 const defaultConfig = {
     /** time in milliseconds for which to collect profile. */
-    durationMillis: 1000,
-    /** average time in microseconds between samples */
-    intervalMicros: 100,
-    /** socket to the Blackfire agent */
-    agentSocket: 'http://0.0.0.0:9998',
+    cpuDuration: 60000,
+    /** average sampling frequency in Hz. */
+    cpuProfileRate: 100,
+    /** Period of time (in seconds) to buffer profiling data before to send them to the agent. */
+    period: 60,
+    /** socket to the Blackfire agent. */
+    agentSocket: defaultAgentSocket(),
+    /** Blackfire Server ID (should be defined with serverToken). */
+    serverId: undefined,
+    /** Blackfire Server Token (should be defined with serverId). */
+    serverToken: undefined
+}
+
+function defaultAgentSocket() {
+    switch(process.platform) {
+        case 'win32':
+            return 'tcp://127.0.0.1:8307';
+        case 'darwin':
+            return 'unix:///usr/local/var/run/blackfire-agent.sock';
+        default:
+            return 'unix:///var/run/blackfire/agent.sock';
+    }
 }
 
 function start(config) {
-    if (isProfilerRunning) {
+    if (_currentProfilingSession.isRunning) {
         log('Profiler is already running');
-        return;
+        return false;
     }
 
     const mergedConfig = {...defaultConfig, ...config};
+    const axiosConfig = _axiosConfig(mergedConfig);
+    const endDate = Date.now() + mergedConfig.cpuDuration;
 
     log('Starting profiler');
-    isProfilerRunning = true;
+    _currentProfilingSession.isRunning = true;
+    // Handle to cancel current profiling
+    let timeout = undefined;
 
-    const doProfiling = () => {
-        log('Collecting new profile')
-        pprof.time
-            .profile({
-                lineNumbers: true,
-                durationMillis: mergedConfig.durationMillis,
-                intervalMicros: mergedConfig.intervalMicros,
-            })
-            .then((profile) => {
-                if (isProfilerRunning) {
-                    setImmediate(doProfiling)
-                }
+    function doProfiling() {
+        const remainingTimeMillis = endDate - Date.now();
+        if (remainingTimeMillis <= 0) {
+            log('Duration expired');
+            _currentProfilingSession.isRunning = false;
+            return;
+        }
 
-                return sendProfileToBlackfireAgent(mergedConfig, profile);
-            })
-            .then((d) => {
-                log('Profile has been uploaded')
-            })
-            .catch((e) => {
-                log(e)
-            })
+        log('Collecting new profile');
+
+        const pprofStopFunction = pprof.time.start(
+            1000000 / mergedConfig.cpuProfileRate,
+            undefined,
+            undefined,
+            true
+        );
+        _currentProfilingSession.stopAndCollect = () => {
+            log('pprof.stop');
+            const profile = pprofStopFunction();
+
+            _currentProfilingSession.stopAndCollect = undefined;
+            clearTimeout(timeout);
+            timeout = undefined;
+
+            _sendProfileToBlackfireAgent(axiosConfig, profile);
+        };
+
+        timeout = setTimeout(() => {
+            _currentProfilingSession.stopAndCollect();
+            doProfiling();
+        }, Math.min(remainingTimeMillis, mergedConfig.period * 1000));
     };
 
     doProfiling();
+    return true;
 }
 
 function stop() {
-    if (!isProfilerRunning) {
+    if (!_currentProfilingSession.isRunning) {
         log('Profiler is already stopped');
-        return;
+        return false;
     }
 
     log('Stopping profiler');
-    isProfilerRunning = false;
+    _currentProfilingSession.stopAndCollect();
+    _currentProfilingSession.isRunning = false;
+    return true;
 }
 
-async function sendProfileToBlackfireAgent(config, profile) {
+async function _sendProfileToBlackfireAgent(axiosConfig, profile) {
     log('Sending profile to Agent');
 
     const buf = await pprof.encode(profile);
@@ -75,13 +114,19 @@ async function sendProfileToBlackfireAgent(config, profile) {
         filename: 'profile.pprof',
     });
 
-    const url = `${config.agentSocket}/profiling/v1/input`;
-    log(`Sending data to ${url}`)
+    const url = '/profiling/v1/input';
+    log(`Sending data to ${axiosConfig.baseURL}${url}`);
+
     // send data to the server
-    return axios(url, {
-        method: 'POST',
-        headers: formData.getHeaders(),
-        data: formData,
+    await axios(url, {
+        ...axiosConfig,
+        ...{
+            headers: {
+                ...axiosConfig.headers,
+                ...formData.getHeaders(),
+            },
+            data: formData,
+        }
     })
         .then(() => {
             log('Profile sent to the agent');
@@ -96,6 +141,20 @@ async function sendProfileToBlackfireAgent(config, profile) {
                 log('Failed to send profile to Blackfire agent:', error.message);
             }
         });
+}
+
+function _axiosConfig(blackfireConfig) {
+    const uri = new URL(blackfireConfig.agentSocket);
+    const isSocket = uri.protocol === 'unix:';
+
+    return {
+        method: 'POST',
+        headers: blackfireConfig.serverId && blackfireConfig.serverToken ? {
+            Authorization: "Basic " + Buffer.from(`${blackfireConfig.serverId}:${blackfireConfig.serverToken}`).toString('base64'),
+        } : {},
+        baseURL: isSocket ? 'http://unix/' : uri.href,
+        socketPath: isSocket ? uri.pathname : undefined,
+    };
 }
 
 module.exports = {

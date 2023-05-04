@@ -27,7 +27,7 @@ const Blackfire = require('@blackfire/nodejs');
 
 ## API
 
-The profiler has two API functions:
+Here is the profiler's API:
 
 ```js
 function start(config) {}
@@ -42,15 +42,18 @@ An example using default configuration (`Blackfire.defaultConfig`) that can be u
 ```js
 const Blackfire = require('@blackfire/nodejs');
 Blackfire.start({
-    /** time in milliseconds for which to collect profile. */
-    durationMillis: 1000,
-    /** average time in microseconds between samples */
-    intervalMicros: 100,
-    /** socket to the Blackfire agent */
-    agentSocket: 'http://0.0.0.0:9998',
+   /** time in milliseconds for which to collect profile. */
+   cpuDuration: 60000,
+   /** average sampling frequency in Hz. */
+   cpuProfileRate: 100,
+   /** Period of time (in seconds) to buffer profiling data before to send them to the agent. */
+   period: 60,
+   /** socket to the Blackfire agent. */
+   agentSocket: 'unix:///var/run/blackfire/agent.sock'
 });
 // your application...
-Blackfire.stop();
+// If needed, you can stop profiling before cpuDuration
+// Blackfire.stop();
 ```
 
 ## Example
