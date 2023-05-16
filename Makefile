@@ -18,6 +18,12 @@ test: yarn-install ## Runs tests suite
 	$(ON_NODE) yarn test
 .PHONY: test
 
+eslint: yarn-install ## Runs Eslint to report code style issues
+	$(ON_NODE) yarn eslint src/ tests/
+
+eslint-fix: yarn-install ## Runs Eslint to fix code style issues
+	$(ON_NODE) yarn eslint --fix src/ tests/
+
 ##
 ### Yarn
 ##
