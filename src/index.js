@@ -17,7 +17,11 @@ function defaultAgentSocket() {
     case 'win32':
       return 'tcp://127.0.0.1:8307';
     case 'darwin':
-      return 'unix:///usr/local/var/run/blackfire-agent.sock';
+      if (process.arch === 'arm64') {
+        return 'unix:///opt/homebrew/var/run/blackfire-agent.sock';
+      } else {
+        return 'unix:///usr/local/var/run/blackfire-agent.sock';
+      }
     default:
       return 'unix:///var/run/blackfire/agent.sock';
   }
