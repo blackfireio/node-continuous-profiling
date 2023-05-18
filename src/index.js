@@ -19,9 +19,8 @@ function defaultAgentSocket() {
     case 'darwin':
       if (process.arch === 'arm64') {
         return 'unix:///opt/homebrew/var/run/blackfire-agent.sock';
-      } else {
-        return 'unix:///usr/local/var/run/blackfire-agent.sock';
       }
+      return 'unix:///usr/local/var/run/blackfire-agent.sock';
     default:
       return 'unix:///var/run/blackfire/agent.sock';
   }
