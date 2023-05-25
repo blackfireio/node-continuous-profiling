@@ -28,11 +28,11 @@ function defaultAgentSocket() {
 
 const defaultConfig = {
   /** time in milliseconds for which to collect profile. */
-  cpuDuration: 60000,
-  /** average sampling frequency in Hz. */
+  durationMillis: 1000,
+  /** average sampling frequency in Hz. (times per second) */
   cpuProfileRate: 100,
   /** Period of time (in seconds) to buffer profiling data before to send them to the agent. */
-  period: 60,
+  periodMillis: 1000,
   /** socket to the Blackfire agent. */
   agentSocket: defaultAgentSocket(),
   /** Blackfire Server ID (should be defined with serverToken). */
@@ -104,58 +104,57 @@ function start(config) {
 
   const mergedConfig = { ...defaultConfig, ...config };
   const axiosConfig = getAxiosConfig(mergedConfig);
-  const endDate = Date.now() + mergedConfig.cpuDuration;
 
   log('Starting profiler');
-  currentProfilingSession.isRunning = true;
-  // Handle to cancel current profiling
-  let timeout;
+  let stopAndUploadTimeout, profileNextTimeout;
 
-  function doProfiling() {
-    const remainingTimeMillis = endDate - Date.now();
-    if (remainingTimeMillis <= 0) {
-      log('Duration expired');
-      currentProfilingSession.isRunning = false;
-      return;
-    }
-
+  function doProfile() {
     log('Collecting new profile');
 
-    const pprofStopFunction = pprof.time.start(
-      1000000 / mergedConfig.cpuProfileRate,
-      undefined,
-      undefined,
-      true,
-    );
-    currentProfilingSession.stopAndCollect = () => {
-      log('pprof.stop');
-      const profile = pprofStopFunction();
+    // profiling duration should be less than the period
+    if (mergedConfig.durationMillis > mergedConfig.periodMillis) {
+      mergedConfig.durationMillis = mergedConfig.periodMillis;
+    }
 
-      currentProfilingSession.stopAndCollect = undefined;
-      clearTimeout(timeout);
-      timeout = undefined;
+    const pprofStop = pprof.time.start(
+      intervalMicros=1_000_000 / mergedConfig.cpuProfileRate, // 1s / rate gives the interval in microseconds
+      name=undefined,
+      sourceMapper=undefined,
+      lineNumbers=true,
+    );
+    currentProfilingSession.isRunning = true;
+
+    currentProfilingSession.stopAndUpload = () => {
+      log('pprof.stop');
+      const profile = pprofStop();
+      currentProfilingSession.isRunning = false;
 
       sendProfileToBlackfireAgent(axiosConfig, profile);
     };
 
-    timeout = setTimeout(() => {
-      currentProfilingSession.stopAndCollect();
-      doProfiling();
-    }, Math.min(remainingTimeMillis, mergedConfig.period * 1000));
+    stopAndUploadTimeout = setTimeout(() => {
+      // stop and upload the current profile
+      currentProfilingSession.stopAndUpload();
+
+      // restart profiling after period elapsed
+      profileNextTimeout = setTimeout(() => {
+        doProfile();
+      }, mergedConfig.periodMillis-mergedConfig.durationMillis);
+
+    }, mergedConfig.durationMillis);
   }
 
-  doProfiling();
+  doProfile();
   return true;
 }
 
 function stop() {
   if (!currentProfilingSession.isRunning) {
-    log('Profiler is already stopped');
     return false;
   }
 
   log('Stopping profiler');
-  currentProfilingSession.stopAndCollect();
+  currentProfilingSession.stopAndUpload();
   currentProfilingSession.isRunning = false;
   return true;
 }
