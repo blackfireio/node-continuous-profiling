@@ -1,9 +1,30 @@
 const pprof = require('pprof');
 const FormData = require('form-data');
 const axios = require('axios');
-const debug = require('debug');
+const winston = require('winston');
 
-const log = debug('blackfire');
+const DEFAULT_LOG_LEVEL = 1;
+const logLevels = {
+		4: "debug",
+		3: "info",
+		2: "warn",
+		1: "error",
+}
+
+// initialize logger
+const logger = winston.createLogger({
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.splat(),
+    winston.format.simple(),
+  ),
+  level: logLevels[process.env.BLACKFIRE_LOG_LEVEL || DEFAULT_LOG_LEVEL],
+});
+if (process.env.BLACKFIRE_LOG_FILE) {
+  logger.add(new winston.transports.File({ filename: process.env.BLACKFIRE_LOG_FILE }));
+} else {
+  logger.add(new winston.transports.Console());
+}
 
 const currentProfilingSession = {
   stop: undefined,
@@ -44,7 +65,7 @@ const defaultConfig = {
 };
 
 async function sendProfileToBlackfireAgent(axiosConfig, config, profile) {
-  log('Sending profile to Agent');
+  logger.debug('Sending profile to Agent');
 
   const buf = await pprof.encode(profile);
 
@@ -62,7 +83,7 @@ async function sendProfileToBlackfireAgent(axiosConfig, config, profile) {
   });
 
   const url = '/profiling/v1/input';
-  log(`Sending data to ${axiosConfig.baseURL}${url}`);
+  logger.debug(`Sending data to ${axiosConfig.baseURL}${url}`);
 
   // send data to the server
   await axios(url, {
@@ -76,16 +97,15 @@ async function sendProfileToBlackfireAgent(axiosConfig, config, profile) {
     },
   })
     .then(() => {
-      log('Profile sent to the agent');
+      logger.debug('Profile sent to the agent');
     })
     .catch((error) => {
       if (error.response) {
-        log('Blackfire agent returned an error');
-        log(error.response.data);
+        logger.error('Blackfire agent returned an error [%s]', error.response.data);
       } else if (error.request) {
-        log('No response from Blackfire agent:', error.message);
+        logger.error('No response from Blackfire agent:', error.message);
       } else {
-        log('Failed to send profile to Blackfire agent:', error.message);
+        logger.error('Failed to send profile to Blackfire agent:', error.message);
       }
     });
 }
@@ -107,18 +127,18 @@ function getAxiosConfig(blackfireConfig) {
 
 function start(config) {
   if (currentProfilingSession.isRunning) {
-    log('Profiler is already running');
+    logger.debug('Profiler is already running');
     return false;
   }
 
   const mergedConfig = { ...defaultConfig, ...config };
   const axiosConfig = getAxiosConfig(mergedConfig);
 
-  log('Starting profiler');
+  logger.debug('Starting profiler');
   let stopAndUploadTimeout, profileNextTimeout;
 
   function doProfile() {
-    log('Collecting new profile');
+    logger.debug('Collecting new profile');
 
     // profiling duration should be less than the period
     if (mergedConfig.durationMillis > mergedConfig.periodMillis) {
@@ -134,7 +154,7 @@ function start(config) {
     currentProfilingSession.isRunning = true;
 
     stopAndUpload = () => {
-      log('pprof.stop');
+      logger.debug('pprof.stop');
       const profile = pprofStop();
       currentProfilingSession.isRunning = false;
 
@@ -169,7 +189,7 @@ function stop() {
     return false;
   }
 
-  log('Stopping profiler');
+  logger.debug('Stopping profiler');
   currentProfilingSession.stop();
   
   return true;
