@@ -39,6 +39,8 @@ const defaultConfig = {
   serverToken: undefined,
   /** Labels to add to the profile. */
   labels : {},
+  /** Timeout in milliseconds for the upload request. */
+  uploadTimeoutMillis: 10000,
 };
 
 async function sendProfileToBlackfireAgent(axiosConfig, config, profile) {
@@ -99,6 +101,7 @@ function getAxiosConfig(blackfireConfig) {
     } : {},
     baseURL: isSocket ? 'http://unix/' : uri.href,
     socketPath: isSocket ? uri.pathname : undefined,
+    timeout: blackfireConfig.uploadTimeoutMillis,
   };
 }
 
