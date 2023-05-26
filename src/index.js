@@ -6,9 +6,7 @@ const debug = require('debug');
 const log = debug('blackfire');
 
 const currentProfilingSession = {
-  // The function to stop current profiling (if any) and retrieve profile
-  stopAndCollect: undefined,
-  // Status actually exposed
+  stop: undefined,
   isRunning: false,
 };
 
@@ -39,14 +37,22 @@ const defaultConfig = {
   serverId: undefined,
   /** Blackfire Server Token (should be defined with serverId). */
   serverToken: undefined,
+  /** Labels to add to the profile. */
+  labels : {},
 };
 
-async function sendProfileToBlackfireAgent(axiosConfig, profile) {
+async function sendProfileToBlackfireAgent(axiosConfig, config, profile) {
   log('Sending profile to Agent');
 
   const buf = await pprof.encode(profile);
 
   const formData = new FormData();
+
+  // add labels to the form data
+  for (const [key, value] of Object.entries(config.labels)) {
+    formData.append(key, value);
+  }
+
   formData.append('profile', buf, {
     knownLength: buf.byteLength,
     contentType: 'text/json',
@@ -124,17 +130,17 @@ function start(config) {
     );
     currentProfilingSession.isRunning = true;
 
-    currentProfilingSession.stopAndUpload = () => {
+    stopAndUpload = () => {
       log('pprof.stop');
       const profile = pprofStop();
       currentProfilingSession.isRunning = false;
 
-      sendProfileToBlackfireAgent(axiosConfig, profile);
+      sendProfileToBlackfireAgent(axiosConfig, config, profile);
     };
 
     stopAndUploadTimeout = setTimeout(() => {
       // stop and upload the current profile
-      currentProfilingSession.stopAndUpload();
+      stopAndUpload();
 
       // restart profiling after period elapsed
       profileNextTimeout = setTimeout(() => {
@@ -142,6 +148,13 @@ function start(config) {
       }, mergedConfig.periodMillis-mergedConfig.durationMillis);
 
     }, mergedConfig.durationMillis);
+
+    currentProfilingSession.stop = () => {
+      clearTimeout(stopAndUploadTimeout);
+      clearTimeout(profileNextTimeout);
+
+      currentProfilingSession.isRunning = false;
+    }
   }
 
   doProfile();
@@ -154,8 +167,8 @@ function stop() {
   }
 
   log('Stopping profiler');
-  currentProfilingSession.stopAndUpload();
-  currentProfilingSession.isRunning = false;
+  currentProfilingSession.stop();
+  
   return true;
 }
 
