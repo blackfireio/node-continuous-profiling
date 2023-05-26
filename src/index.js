@@ -72,8 +72,10 @@ async function sendProfileToBlackfireAgent(axiosConfig, config, profile) {
   const formData = new FormData();
 
   // add labels to the form data
-  for (const [key, value] of Object.entries(config.labels)) {
-    formData.append(key, value);
+  if (config.labels) {
+    for (const [key, value] of Object.entries(config.labels)) {
+      formData.append(key, value);
+    }
   }
 
   formData.append('profile', buf, {
@@ -146,7 +148,7 @@ function start(config) {
     }
 
     const pprofStop = pprof.time.start(
-      intervalMicros=1_000_000 / mergedConfig.cpuProfileRate, // 1s / rate gives the interval in microseconds
+      intervalMicros=1_000_000 / mergedConfig.cpuProfileRate, // 1s divided by rate gives the interval in microseconds
       name=undefined,
       sourceMapper=undefined,
       lineNumbers=true,
@@ -175,6 +177,8 @@ function start(config) {
     currentProfilingSession.stop = () => {
       clearTimeout(stopAndUploadTimeout);
       clearTimeout(profileNextTimeout);
+
+      pprofStop();
 
       currentProfilingSession.isRunning = false;
     }

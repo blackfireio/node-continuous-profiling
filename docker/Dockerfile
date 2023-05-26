@@ -1,4 +1,6 @@
-FROM node:latest
+ARG NODE_VERSION
+
+FROM node:${NODE_VERSION}
 
 # https://github.com/tianon/gosu/blob/master/INSTALL.md
 RUN set -eux; \
