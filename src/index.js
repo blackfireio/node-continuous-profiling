@@ -53,7 +53,7 @@ const defaultConfig = {
   /** Period of time (in seconds) to buffer profiling data before to send them to the agent. */
   periodMillis: 1000,
   /** socket to the Blackfire agent. */
-  agentSocket: defaultAgentSocket(),
+  agentSocket: process.env.BLACKFIRE_AGENT_SOCKET || defaultAgentSocket(),
   /** Blackfire Server ID (should be defined with serverToken). */
   serverId: undefined,
   /** Blackfire Server Token (should be defined with serverId). */
@@ -101,11 +101,11 @@ async function sendProfileToBlackfireAgent(axiosConfig, config, profile) {
     })
     .catch((error) => {
       if (error.response) {
-        logger.error('Blackfire agent returned an error [%s]', error.response.data);
+        logger.error(`Blackfire agent returned an error: ${error.response.data}`);
       } else if (error.request) {
-        logger.error('No response from Blackfire agent:', error.message);
+        logger.error(`No response from Blackfire agent: ${error.message}`);
       } else {
-        logger.error('Failed to send profile to Blackfire agent:', error.message);
+        logger.error(`Failed to send profile to Blackfire agent: ${error.message}`);
       }
     });
 }
