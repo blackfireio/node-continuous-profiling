@@ -20,9 +20,9 @@ test('Blackfire imports', () => {
 });
 
 test.each([
-  //{ listenTo: 4242, agentSocket: 'http://localhost:4242' },
+  { listenTo: 4141, agentSocket: 'http://localhost:4141' },
   { listenTo: 4242, agentSocket: 'tcp://127.0.0.1:4242' },
-  //{ listenTo: '/tmp/blackfire_nodejs_test.sock', agentSocket: 'unix:///tmp/blackfire_nodejs_test.sock' },
+  { listenTo: '/tmp/blackfire_nodejs_test.sock', agentSocket: 'unix:///tmp/blackfire_nodejs_test.sock' },
 ])('Profile is sent ($agentSocket)', ({ listenTo, agentSocket }, done) => {
   const app = express();
   app.use(fileUpload());
@@ -47,13 +47,11 @@ test.each([
       expect(req.files.profile.mimetype).toBe('text/json');
       expect(req.files.profile.size).toBeGreaterThan(0);
 
-      const profile = Profile.decode(gunzipSync(req.files.profile.data));
-      
+      Profile.decode(gunzipSync(req.files.profile.data));
       done();
     });
   });
 });
-
 
 test.each([
   { serverId: undefined, serverToken: undefined, expected: undefined },
@@ -124,7 +122,6 @@ test('Sampling parameters', (done) => {
     }, requestCount);
   });
 });
-
 
 test('Stop function', (done) => {
   const app = express();

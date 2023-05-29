@@ -5,11 +5,11 @@ const winston = require('winston');
 
 const DEFAULT_LOG_LEVEL = 1;
 const logLevels = {
-		4: "debug",
-		3: "info",
-		2: "warn",
-		1: "error",
-}
+  4: 'debug',
+  3: 'info',
+  2: 'warn',
+  1: 'error',
+};
 
 // initialize logger
 const logger = winston.createLogger({
@@ -59,7 +59,7 @@ const defaultConfig = {
   /** Blackfire Server Token (should be defined with serverId). */
   serverToken: undefined,
   /** Labels to add to the profile. */
-  labels : {},
+  labels: {},
   /** Timeout in milliseconds for the upload request. */
   uploadTimeoutMillis: 10000,
 };
@@ -73,9 +73,9 @@ async function sendProfileToBlackfireAgent(axiosConfig, config, profile) {
 
   // add labels to the form data
   if (config.labels) {
-    for (const [key, value] of Object.entries(config.labels)) {
-      formData.append(key, value);
-    }
+    Object.keys(config.labels).forEach((key) => {
+      formData.append(key, config.labels[key]);
+    });
   }
 
   formData.append('profile', buf, {
@@ -137,7 +137,8 @@ function start(config) {
   const axiosConfig = getAxiosConfig(mergedConfig);
 
   logger.debug('Starting profiler');
-  let stopAndUploadTimeout, profileNextTimeout;
+  let stopAndUploadTimeout;
+  let profileNextTimeout;
 
   function doProfile() {
     logger.debug('Collecting new profile');
@@ -148,14 +149,14 @@ function start(config) {
     }
 
     const pprofStop = pprof.time.start(
-      intervalMicros=1_000_000 / mergedConfig.cpuProfileRate, // 1s divided by rate gives the interval in microseconds
-      name=undefined,
-      sourceMapper=undefined,
-      lineNumbers=true,
+      1_000_000 / mergedConfig.cpuProfileRate, // 1s divided by rate
+      undefined,
+      undefined,
+      true,
     );
     currentProfilingSession.isRunning = true;
 
-    stopAndUpload = () => {
+    const stopAndUpload = () => {
       logger.debug('pprof.stop');
       const profile = pprofStop();
       currentProfilingSession.isRunning = false;
@@ -170,8 +171,7 @@ function start(config) {
       // restart profiling after period elapsed
       profileNextTimeout = setTimeout(() => {
         doProfile();
-      }, mergedConfig.periodMillis-mergedConfig.durationMillis);
-
+      }, mergedConfig.periodMillis - mergedConfig.durationMillis);
     }, mergedConfig.durationMillis);
 
     currentProfilingSession.stop = () => {
@@ -181,7 +181,7 @@ function start(config) {
       pprofStop();
 
       currentProfilingSession.isRunning = false;
-    }
+    };
   }
 
   doProfile();
@@ -195,7 +195,7 @@ function stop() {
 
   logger.debug('Stopping profiler');
   currentProfilingSession.stop();
-  
+
   return true;
 }
 
