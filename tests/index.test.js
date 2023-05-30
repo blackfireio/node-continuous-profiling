@@ -82,6 +82,7 @@ test.each([
   });
 });
 
+// TODO: There are some problems with these test cases, need to revisit them
 /*
 test('Sampling parameters', (done) => {
   const app = express();
@@ -106,12 +107,14 @@ test('Sampling parameters', (done) => {
       switch (requestId) {
         case 1:
           // First data set, approximately at 0.4s (according to 'period' parameter)
+          // TODO: sample.length might not be always greater than 0, find a better way to test this
           //expect(profile.sample.length).toBeGreaterThanOrEqual(1);
           break;
         case 2:
           server.close();
 
           // Last data set, approximately at 0.5s (according to 'durationMillis' parameter)
+          // TODO: sample.length might not be always greater than 0, find a better way to test this
           //expect(profile.sample.length).toBeGreaterThanOrEqual(1);
           done();
           break;
