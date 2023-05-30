@@ -165,7 +165,6 @@ function start(config) {
     };
 
     stopAndUploadTimeout = setTimeout(() => {
-      // stop and upload the current profile
       stopAndUpload();
 
       // restart profiling after period elapsed
