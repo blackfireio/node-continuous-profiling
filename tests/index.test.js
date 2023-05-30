@@ -92,7 +92,7 @@ test('Sampling parameters', (done) => {
       agentSocket: 'http://localhost:4242',
       durationMillis: 500, // ms
       cpuProfileRate: 100, // Hz
-      periodMillis: 0.4, // s
+      periodMillis: 0.4, // ms
     })).toBeTruthy();
   });
 
