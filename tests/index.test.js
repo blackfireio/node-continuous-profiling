@@ -22,7 +22,7 @@ test('Blackfire imports', () => {
 test.each([
   { listenTo: 4141, agentSocket: 'http://localhost:4141' },
   { listenTo: 4242, agentSocket: 'tcp://127.0.0.1:4242' },
-  //{ listenTo: '/tmp/blackfire_nodejs_test.sock', agentSocket: 'unix:///tmp/blackfire_nodejs_test.sock' },
+  { listenTo: '/tmp/blackfire_nodejs_test.sock', agentSocket: 'unix:///tmp/blackfire_nodejs_test.sock' },
 ])('Profile is sent ($agentSocket)', ({ listenTo, agentSocket }, done) => {
   const app = express();
   app.use(fileUpload());
@@ -84,7 +84,6 @@ test.each([
   });
 });
 
-
 test('Sampling parameters', (done) => {
   const app = express();
   app.use(fileUpload());
@@ -124,7 +123,6 @@ test('Sampling parameters', (done) => {
   });
 });
 
-
 test('Stop function', (done) => {
   const app = express();
   const server = app.listen(4242, () => {
@@ -135,16 +133,15 @@ test('Stop function', (done) => {
     })).toBeTruthy();
   });
 
-  let requestCount = 0;
   expect.hasAssertions();
   app.post('/profiling/v1/input', (req, res) => {
     res.sendStatus(200);
 
     setImmediate(() => {
-          expect(Blackfire.stop()).toBeTruthy();
-          server.close();
-          expect(Blackfire.stop()).toBeFalsy();
-          done();
+      expect(Blackfire.stop()).toBeTruthy();
+      server.close();
+      expect(Blackfire.stop()).toBeFalsy();
+      done();
     });
   });
 });

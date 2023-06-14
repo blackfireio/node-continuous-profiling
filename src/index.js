@@ -167,7 +167,7 @@ function start(config) {
 
     const stopProfiling = () => {
       if (!currentProfilingSession.profiling) {
-        return;
+        return {};
       }
       const profile = pprofStop();
       currentProfilingSession.profiling = false;
