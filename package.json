@@ -10,7 +10,7 @@
     }
   },
   "scripts": {
-    "test": "jest --no-cache --runInBand --forceExit --detectOpenHandles"
+    "test": "jest --no-cache --runInBand --forceExit --detectOpenHandles --coverage"
   },
   "author": "blackfire.io",
   "license": "MIT",

@@ -28,7 +28,14 @@ if (process.env.BLACKFIRE_LOG_FILE) {
 
 const currentProfilingSession = {
   stop: undefined,
-  isRunning: false,
+
+  // active is true when the profiling session started
+  active: false,
+
+  // profiling indicates if the underlying profiler is running. It is highly
+  // probable that the profiler is NOT running(period ends) but the profiling
+  // session is still active.
+  profiling: false,
 };
 
 function defaultAgentSocket() {
@@ -50,7 +57,7 @@ const defaultConfig = {
   durationMillis: 1000,
   /** average sampling frequency in Hz. (times per second) */
   cpuProfileRate: 100,
-  /** Period of time (in seconds) to buffer profiling data before to send them to the agent. */
+  /** Period of time in milliseconds to buffer profiling data before to send them to the agent. */
   periodMillis: 1000,
   /** socket to the Blackfire agent. */
   agentSocket: process.env.BLACKFIRE_AGENT_SOCKET || defaultAgentSocket(),
@@ -128,10 +135,12 @@ function getAxiosConfig(blackfireConfig) {
 }
 
 function start(config) {
-  if (currentProfilingSession.isRunning) {
-    logger.debug('Profiler is already running');
+  if (currentProfilingSession.active) {
+    logger.error('Profiler is already running');
     return false;
   }
+
+  currentProfilingSession.active = true;
 
   const mergedConfig = { ...defaultConfig, ...config };
   const axiosConfig = getAxiosConfig(mergedConfig);
@@ -140,13 +149,13 @@ function start(config) {
   let stopAndUploadTimeout;
   let profileNextTimeout;
 
+  // profiling duration should be less than the period
+  if (mergedConfig.durationMillis > mergedConfig.periodMillis) {
+    mergedConfig.durationMillis = mergedConfig.periodMillis;
+  }
+
   function doProfile() {
     logger.debug('Collecting new profile');
-
-    // profiling duration should be less than the period
-    if (mergedConfig.durationMillis > mergedConfig.periodMillis) {
-      mergedConfig.durationMillis = mergedConfig.periodMillis;
-    }
 
     const pprofStop = pprof.time.start(
       1_000_000 / mergedConfig.cpuProfileRate, // 1s divided by rate
@@ -154,18 +163,28 @@ function start(config) {
       undefined,
       true,
     );
-    currentProfilingSession.isRunning = true;
+    currentProfilingSession.profiling = true;
 
-    const stopAndUpload = () => {
-      logger.debug('pprof.stop');
+    const stopProfiling = () => {
+      if (!currentProfilingSession.profiling) {
+        return;
+      }
       const profile = pprofStop();
-      currentProfilingSession.isRunning = false;
-
-      sendProfileToBlackfireAgent(axiosConfig, config, profile);
+      currentProfilingSession.profiling = false;
+      return profile;
     };
 
+    const stopProfilingAndUpload = () => {
+      logger.debug('stopProfilingAndUpload');
+      const profile = stopProfiling();
+      if (profile) {
+        sendProfileToBlackfireAgent(axiosConfig, config, profile);
+      }
+    };
+
+    // setup next profiling cycle
     stopAndUploadTimeout = setTimeout(() => {
-      stopAndUpload();
+      stopProfilingAndUpload();
 
       // restart profiling after period elapsed
       profileNextTimeout = setTimeout(() => {
@@ -177,9 +196,7 @@ function start(config) {
       clearTimeout(stopAndUploadTimeout);
       clearTimeout(profileNextTimeout);
 
-      pprofStop();
-
-      currentProfilingSession.isRunning = false;
+      stopProfiling();
     };
   }
 
@@ -188,12 +205,14 @@ function start(config) {
 }
 
 function stop() {
-  if (!currentProfilingSession.isRunning) {
+  if (!currentProfilingSession.active) {
     return false;
   }
 
   logger.debug('Stopping profiler');
   currentProfilingSession.stop();
+
+  currentProfilingSession.active = false;
 
   return true;
 }
