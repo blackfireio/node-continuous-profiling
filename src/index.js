@@ -52,7 +52,7 @@ function defaultAgentSocket() {
   }
 }
 
-var periodMillis = 1000;
+const periodMillis = 1000;
 
 const defaultConfig = {
   /** time in milliseconds for which to collect profile. */
