@@ -52,13 +52,13 @@ function defaultAgentSocket() {
   }
 }
 
+var periodMillis = 1000;
+
 const defaultConfig = {
   /** time in milliseconds for which to collect profile. */
   durationMillis: 1000,
   /** average sampling frequency in Hz. (times per second) */
   cpuProfileRate: 100,
-  /** Period of time in milliseconds to buffer profiling data before to send them to the agent. */
-  periodMillis: 1000,
   /** socket to the Blackfire agent. */
   agentSocket: process.env.BLACKFIRE_AGENT_SOCKET || defaultAgentSocket(),
   /** Blackfire Server ID (should be defined with serverToken). */
@@ -150,8 +150,8 @@ function start(config) {
   let profileNextTimeout;
 
   // profiling duration should be less than the period
-  if (mergedConfig.durationMillis > mergedConfig.periodMillis) {
-    mergedConfig.durationMillis = mergedConfig.periodMillis;
+  if (mergedConfig.durationMillis > periodMillis) {
+    mergedConfig.durationMillis = periodMillis;
   }
 
   function doProfile() {
@@ -189,7 +189,7 @@ function start(config) {
       // restart profiling after period elapsed
       profileNextTimeout = setTimeout(() => {
         doProfile();
-      }, mergedConfig.periodMillis - mergedConfig.durationMillis);
+      }, periodMillis - mergedConfig.durationMillis);
     }, mergedConfig.durationMillis);
 
     currentProfilingSession.stop = () => {

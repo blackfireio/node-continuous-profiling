@@ -12,11 +12,10 @@ test('Blackfire imports', () => {
 
   expect(Blackfire.defaultConfig).toHaveProperty('durationMillis');
   expect(Blackfire.defaultConfig).toHaveProperty('cpuProfileRate');
-  expect(Blackfire.defaultConfig).toHaveProperty('periodMillis');
   expect(Blackfire.defaultConfig).toHaveProperty('agentSocket');
   expect(Blackfire.defaultConfig).toHaveProperty('serverId');
   expect(Blackfire.defaultConfig).toHaveProperty('serverToken');
-  expect(Object.keys(Blackfire.defaultConfig)).toHaveLength(8);
+  expect(Object.keys(Blackfire.defaultConfig)).toHaveLength(7);
 });
 
 test.each([
@@ -88,11 +87,11 @@ test('Sampling parameters', (done) => {
   const app = express();
   app.use(fileUpload());
   const server = app.listen(4242, () => {
+    Blackfire.periodMillis = 400; // ms
     expect(Blackfire.start({
       agentSocket: 'http://localhost:4242',
       durationMillis: 500, // ms
       cpuProfileRate: 100, // Hz
-      periodMillis: 400, // ms
     })).toBeTruthy();
   });
 
@@ -126,10 +125,10 @@ test('Sampling parameters', (done) => {
 test('Stop function', (done) => {
   const app = express();
   const server = app.listen(4242, () => {
+    Blackfire.periodMillis = 300; // ms
     expect(Blackfire.start({
       agentSocket: 'http://localhost:4242',
       durationMillis: 5000, // ms
-      periodMillis: 300, // ms
     })).toBeTruthy();
   });
 
