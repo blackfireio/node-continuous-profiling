@@ -1,15 +1,6 @@
 # Blackfire Continuous Profiler for NodeJs
 
-Blackfire Continuous Profiler continuously collects and uploads profiling data to the Blackfire servers.
-
-Once the profiler is enabled, it collects the relevant profiling information in configurable intervals and uploads this information periodically to the Blackfire Agent.
-Blackfire Agent then forwards this information to the backend.
-The heavy lifting of the profiler collection is all done by PProf library: e.g: See https://github.com/google/pprof-nodejs for more details
-
-## Questions&Feedback
-
-You can ask any questions or provide feedback on the `#blackfire` channel for Continuous Profiling.
-You can also ask for help on how to set up your environment for Continuous Profiling.
+Blackfire Continuous Profiler continuously collects and uploads profiling data to the Blackfire servers. Once enabled, the profiler collects the relevant profiling information in configurable intervals and periodically uploads it to the Blackfire Agent. Blackfire Agent then forwards this information to the backend.
 
 # How to use
 ## Prerequisites
@@ -35,7 +26,7 @@ function stop() {}
 ```
 
 `start` starts the continuous profiler probe.
-It collects profiling information in background and uploads it to the Agent periodically, until `stop` is called.
+It collects profiling information in the background and periodically uploads it to the Agent until `stop`` is called.
 
 An example using default configuration (`Blackfire.defaultConfig`) that can be used with `start`:
 
@@ -43,11 +34,9 @@ An example using default configuration (`Blackfire.defaultConfig`) that can be u
 const Blackfire = require('@blackfire/nodejs');
 Blackfire.start({
    /** time in milliseconds for which to collect profile. */
-   cpuDuration: 60000,
+   durationMillis: 60000,
    /** average sampling frequency in Hz. */
    cpuProfileRate: 100,
-   /** Period of time (in seconds) to buffer profiling data before to send them to the agent. */
-   period: 60,
    /** socket to the Blackfire agent. */
    agentSocket: 'unix:///var/run/blackfire/agent.sock'
 });
@@ -64,7 +53,7 @@ Blackfire.start({
 npm install express @blackfire/nodejs
 ```
 
-2. Create `index.js` with following code
+2. Create `index.js` with the following code
 
 ```js
 const Blackfire = require('@blackfire/nodejs');
@@ -94,7 +83,7 @@ BLACKFIRE_SOCKET="tcp://127.0.0.1:8307" blackfire agent --log-level=5
 ```
 
 4. Run NodeJs server. (`node index.js`)
-5. Profiler will send data to the Agent and Agent will forward it to the Blackfire
+5. Profiler will send data to the Agent, and Agent will forward it to the Blackfire
    backend. Data then can be visualized at https://blackfire.io
 
 # Contributing
