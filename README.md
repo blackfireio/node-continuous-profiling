@@ -1,11 +1,11 @@
-# Blackfire Continuous Profiler for NodeJs
+# Blackfire Continuous Profiler for Node.js
 
 Blackfire Continuous Profiler continuously collects and uploads profiling data to the Blackfire servers. Once enabled, the profiler collects the relevant profiling information in configurable intervals and periodically uploads it to the Blackfire Agent. Blackfire Agent then forwards this information to the backend.
 
 # How to use
 ## Prerequisites
 
-* NodeJs >= 16.0.0
+* Node.js >= 16.0.0
 * Blackfire Agent >= 2.13.0
 
 ## Installation
