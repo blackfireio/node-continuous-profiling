@@ -24,6 +24,9 @@ eslint: yarn-install ## Runs Eslint to report code style issues
 eslint-fix: yarn-install ## Runs Eslint to fix code style issues
 	$(ON_NODE) yarn eslint --fix src/ tests/
 
+release:
+	./scripts/release.sh
+
 ##
 ### Yarn
 ##
