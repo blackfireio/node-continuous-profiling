@@ -13,4 +13,4 @@ services:
     volumes:
       - ./:/blackfire
       - /etc/passwd:/etc/passwd:ro
-      - /etc/secret:/etc/secret:ro
+      - /etc/secret/package-cloud.sh:/etc/secret/package-cloud.sh:ro
