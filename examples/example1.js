@@ -16,5 +16,5 @@ app.get('/', (req, res) => {
 
 app.listen(port, () => {
    console.log(`Example app listening on port ${port}`)
-   Blackfire.start({labels: {"service": "my-nodejs-app"}});
+   Blackfire.start({labels: {"application_name": "my-nodejs-app"}});
 })
