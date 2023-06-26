@@ -5,8 +5,6 @@ services:
   nodejs:
     build: 
       context: ./docker
-    # args:
-    #   - NODE_VERSION=16
     entrypoint: /blackfire/docker/entrypoint.sh
     command: /true
     working_dir: /blackfire
