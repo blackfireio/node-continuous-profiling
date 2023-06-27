@@ -1,4 +1,4 @@
-# Blackfire Continuous Profiler for Node.js
+# Experimental Blackfire Continuous Profiler for Node.js
 
 Blackfire Continuous Profiler continuously collects and uploads profiling data to the Blackfire servers. Once enabled, the profiler collects the relevant profiling information in configurable intervals and periodically uploads it to the Blackfire Agent. Blackfire Agent then forwards this information to the backend.
 
