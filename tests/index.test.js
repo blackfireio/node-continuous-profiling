@@ -152,7 +152,7 @@ describe('Environment variables', () => {
   const OLD_ENV = process.env;
 
   beforeEach(() => {
-    jest.resetModules()
+    jest.resetModules();
     process.env = { ...OLD_ENV };
   });
 
@@ -172,8 +172,8 @@ describe('Environment variables', () => {
       expect(Blackfire.start({
         agentSocket: 'http://localhost:4242',
         labels: {
-          foo: 'bar'
-        }
+          foo: 'bar',
+        },
       })).toBeTruthy();
     });
 
@@ -188,10 +188,10 @@ describe('Environment variables', () => {
         expect(req.body).toBeDefined();
         expect(Object.keys(req.body)).toHaveLength(8);
 
-        expect(req.body.runtime).toBe("nodejs")
-        expect(req.body.application_name).toBe("my-app")
-        expect(req.body.project_id).toBe("18")
-        expect(req.body.foo).toBe("bar")
+        expect(req.body.runtime).toBe('nodejs');
+        expect(req.body.application_name).toBe('my-app');
+        expect(req.body.project_id).toBe('18');
+        expect(req.body.foo).toBe('bar');
 
         done();
       });
@@ -207,11 +207,11 @@ describe('Environment variables', () => {
     const server = app.listen(4242, () => {
       Blackfire.periodMillis = 10; // ms
       expect(Blackfire.start({
-        appName: "My super app",
+        appName: 'My super app',
         agentSocket: 'http://localhost:4242',
         labels: {
-          foo: 'bar'
-        }
+          foo: 'bar',
+        },
       })).toBeTruthy();
     });
 
@@ -225,8 +225,8 @@ describe('Environment variables', () => {
 
         expect(req.body).toBeDefined();
 
-        expect(req.body.application_name).toBe("My super app")
-        expect(req.body.foo).toBe("bar")
+        expect(req.body.application_name).toBe('My super app');
+        expect(req.body.foo).toBe('bar');
 
         done();
       });
@@ -241,8 +241,8 @@ describe('Environment variables', () => {
       expect(Blackfire.start({
         agentSocket: 'http://localhost:4242',
         labels: {
-          foo: 'bar'
-        }
+          foo: 'bar',
+        },
       })).toBeTruthy();
     });
 
@@ -256,8 +256,8 @@ describe('Environment variables', () => {
 
         expect(req.body).toBeDefined();
 
-        expect(req.body.application_name).toBe("my-node-app")
-        expect(req.body.foo).toBe("bar")
+        expect(req.body.application_name).toBe('my-node-app');
+        expect(req.body.foo).toBe('bar');
 
         done();
       });

@@ -54,21 +54,21 @@ function defaultAgentSocket() {
 }
 
 function defaultLabels() {
-  let labels = {
-    'runtime': 'nodejs',
-    'runtime_os': process.platform,
-    'runtime_arch': process.arch,
-    'runtime_version': process.version,
-    'host': os.hostname(),
+  const labels = {
+    runtime: 'nodejs',
+    runtime_os: process.platform,
+    runtime_arch: process.arch,
+    runtime_version: process.version,
+    host: os.hostname(),
   };
 
   // Collect more labels from environment variables. Priority matters for the same label name.
   const lookup = [
-    {labelName: 'application_name', envVar: 'BLACKFIRE_CONPROF_APP_NAME'},
-    {labelName: 'application_name', envVar: 'PLATFORM_APPLICATION_NAME'},
+    { labelName: 'application_name', envVar: 'BLACKFIRE_CONPROF_APP_NAME' },
+    { labelName: 'application_name', envVar: 'PLATFORM_APPLICATION_NAME' },
 
-    {labelName: 'project_id', envVar: 'PLATFORM_PROJECT'},
-  ]
+    { labelName: 'project_id', envVar: 'PLATFORM_PROJECT' },
+  ];
 
   lookup.forEach((entry) => {
     if (entry.labelName in labels) {
@@ -78,7 +78,7 @@ function defaultLabels() {
     if (entry.envVar in process.env) {
       labels[entry.labelName] = process.env[entry.envVar];
     }
-  })
+  });
 
   return labels;
 }
@@ -179,9 +179,17 @@ function start(config) {
 
   // Merge the labels
   if (config.appName) {
-    config.labels = { ...defaultLabels(), ...{ 'application_name': config.appName }, ...mergedConfig.labels }
+    mergedConfig.labels = {
+      ...defaultLabels(),
+      ...{ application_name: config.appName },
+      ...mergedConfig.labels,
+    };
   } else {
-    config.labels = { ...{ 'application_name': mergedConfig.appName }, ...defaultLabels(), ...mergedConfig.labels }
+    mergedConfig.labels = {
+      ...{ application_name: mergedConfig.appName },
+      ...defaultLabels(),
+      ...mergedConfig.labels,
+    };
   }
 
   const axiosConfig = getAxiosConfig(mergedConfig);
@@ -219,7 +227,7 @@ function start(config) {
       logger.debug('stopProfilingAndUpload');
       const profile = stopProfiling();
       if (profile) {
-        sendProfileToBlackfireAgent(axiosConfig, config, profile);
+        sendProfileToBlackfireAgent(axiosConfig, mergedConfig, profile);
       }
     };
 
