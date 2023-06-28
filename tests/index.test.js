@@ -10,6 +10,7 @@ test('Blackfire imports', () => {
   expect(Blackfire.start).toBeInstanceOf(Function);
   expect(Blackfire.stop).toBeInstanceOf(Function);
 
+  expect(Blackfire.defaultConfig).toHaveProperty('appName');
   expect(Blackfire.defaultConfig).toHaveProperty('durationMillis');
   expect(Blackfire.defaultConfig).toHaveProperty('cpuProfileRate');
   expect(Blackfire.defaultConfig).toHaveProperty('agentSocket');
@@ -17,7 +18,7 @@ test('Blackfire imports', () => {
   expect(Blackfire.defaultConfig).toHaveProperty('serverToken');
   expect(Blackfire.defaultConfig).toHaveProperty('uploadTimeoutMillis');
   expect(Blackfire.defaultConfig).toHaveProperty('labels');
-  expect(Object.keys(Blackfire.defaultConfig)).toHaveLength(7);
+  expect(Object.keys(Blackfire.defaultConfig)).toHaveLength(8);
 });
 
 test.each([
@@ -190,6 +191,72 @@ describe('Environment variables', () => {
         expect(req.body.runtime).toBe("nodejs")
         expect(req.body.application_name).toBe("my-app")
         expect(req.body.project_id).toBe("18")
+        expect(req.body.foo).toBe("bar")
+
+        done();
+      });
+    });
+  });
+
+  test('Testing appName defined', (done) => {
+    process.env.PLATFORM_APPLICATION_NAME = 'my-platform-app';
+    process.env.BLACKFIRE_CONPROF_APP_NAME = 'my-app';
+
+    const app = express();
+    app.use(fileUpload());
+    const server = app.listen(4242, () => {
+      Blackfire.periodMillis = 10; // ms
+      expect(Blackfire.start({
+        appName: "My super app",
+        agentSocket: 'http://localhost:4242',
+        labels: {
+          foo: 'bar'
+        }
+      })).toBeTruthy();
+    });
+
+    expect.hasAssertions();
+    app.post('/profiling/v1/input', (req, res) => {
+      res.sendStatus(200);
+
+      setImmediate(() => {
+        server.close();
+        Blackfire.stop();
+
+        expect(req.body).toBeDefined();
+
+        expect(req.body.application_name).toBe("My super app")
+        expect(req.body.foo).toBe("bar")
+
+        done();
+      });
+    });
+  });
+
+  test('Testing appName default', (done) => {
+    const app = express();
+    app.use(fileUpload());
+    const server = app.listen(4242, () => {
+      Blackfire.periodMillis = 10; // ms
+      expect(Blackfire.start({
+        agentSocket: 'http://localhost:4242',
+        labels: {
+          foo: 'bar'
+        }
+      })).toBeTruthy();
+    });
+
+    expect.hasAssertions();
+    app.post('/profiling/v1/input', (req, res) => {
+      res.sendStatus(200);
+
+      setImmediate(() => {
+        server.close();
+        Blackfire.stop();
+
+        expect(req.body).toBeDefined();
+
+        expect(req.body.application_name).toBe("my-node-app")
         expect(req.body.foo).toBe("bar")
 
         done();

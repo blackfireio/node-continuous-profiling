@@ -86,6 +86,8 @@ function defaultLabels() {
 const periodMillis = 1000;
 
 const defaultConfig = {
+  /** name of the application */
+  appName: 'my-node-app',
   /** time in milliseconds for which to collect profile. */
   durationMillis: 1000,
   /** average sampling frequency in Hz. (times per second) */
@@ -176,7 +178,11 @@ function start(config) {
   const mergedConfig = { ...defaultConfig, ...config };
 
   // Merge the labels
-  config.labels = { ...defaultLabels(), ...config.labels }
+  if (config.appName) {
+    config.labels = { ...defaultLabels(), ...{ 'application_name': config.appName }, ...mergedConfig.labels }
+  } else {
+    config.labels = { ...{ 'application_name': mergedConfig.appName }, ...defaultLabels(), ...mergedConfig.labels }
+  }
 
   const axiosConfig = getAxiosConfig(mergedConfig);
 

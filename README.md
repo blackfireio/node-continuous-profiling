@@ -33,12 +33,9 @@ An example using default configuration (`Blackfire.defaultConfig`) that can be u
 ```js
 const Blackfire = require('@blackfire/nodejs');
 Blackfire.start({
-   /** time in milliseconds for which to collect profile. */
-   durationMillis: 60000,
-   /** average sampling frequency in Hz. */
-   cpuProfileRate: 100,
+   appName: 'my-app'
    /** socket to the Blackfire agent. */
-   agentSocket: 'unix:///var/run/blackfire/agent.sock'
+   // agentSocket: 'unix:///var/run/blackfire/agent.sock'
 });
 // your application...
 // If needed, you can stop profiling before cpuDuration
@@ -72,7 +69,7 @@ app.get('/', (req, res) => {
 
 app.listen(port, () => {
    console.log(`Example app listening on port ${port}`)
-   Blackfire.start({agentSocket: 'tcp://127.0.0.1:8307'});
+   Blackfire.start({appName: 'blackfire-example', agentSocket: 'tcp://127.0.0.1:8307'});
 })
 ```
 
