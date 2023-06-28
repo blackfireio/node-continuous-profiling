@@ -15,6 +15,8 @@ test('Blackfire imports', () => {
   expect(Blackfire.defaultConfig).toHaveProperty('agentSocket');
   expect(Blackfire.defaultConfig).toHaveProperty('serverId');
   expect(Blackfire.defaultConfig).toHaveProperty('serverToken');
+  expect(Blackfire.defaultConfig).toHaveProperty('uploadTimeoutMillis');
+  expect(Blackfire.defaultConfig).toHaveProperty('labels');
   expect(Object.keys(Blackfire.defaultConfig)).toHaveLength(7);
 });
 
@@ -141,6 +143,57 @@ test('Stop function', (done) => {
       server.close();
       expect(Blackfire.stop()).toBeFalsy();
       done();
+    });
+  });
+});
+
+describe('Environment variables', () => {
+  const OLD_ENV = process.env;
+
+  beforeEach(() => {
+    jest.resetModules()
+    process.env = { ...OLD_ENV };
+  });
+
+  afterAll(() => {
+    process.env = OLD_ENV; // Restore old environment
+  });
+
+  test('Testing labels', (done) => {
+    process.env.PLATFORM_APPLICATION_NAME = 'my-platform-app';
+    process.env.BLACKFIRE_CONPROF_APP_NAME = 'my-app';
+    process.env.PLATFORM_PROJECT = '18';
+
+    const app = express();
+    app.use(fileUpload());
+    const server = app.listen(4242, () => {
+      Blackfire.periodMillis = 10; // ms
+      expect(Blackfire.start({
+        agentSocket: 'http://localhost:4242',
+        labels: {
+          foo: 'bar'
+        }
+      })).toBeTruthy();
+    });
+
+    expect.hasAssertions();
+    app.post('/profiling/v1/input', (req, res) => {
+      res.sendStatus(200);
+
+      setImmediate(() => {
+        server.close();
+        Blackfire.stop();
+
+        expect(req.body).toBeDefined();
+        expect(Object.keys(req.body)).toHaveLength(8);
+
+        expect(req.body.runtime).toBe("nodejs")
+        expect(req.body.application_name).toBe("my-app")
+        expect(req.body.project_id).toBe("18")
+        expect(req.body.foo).toBe("bar")
+
+        done();
+      });
     });
   });
 });

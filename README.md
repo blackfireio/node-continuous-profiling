@@ -79,7 +79,7 @@ app.listen(port, () => {
 3. Run Blackfire Agent (version 2.13.0 and up)
 
 ```
-BLACKFIRE_SOCKET="tcp://127.0.0.1:8307" blackfire agent --log-level=5
+BLACKFIRE_SOCKET="tcp://127.0.0.1:8307" blackfire agent --log-level=4
 ```
 
 4. Run NodeJs server. (`node index.js`)

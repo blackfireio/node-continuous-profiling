@@ -2,6 +2,7 @@ const pprof = require('pprof');
 const FormData = require('form-data');
 const axios = require('axios');
 const winston = require('winston');
+const os = require('os');
 
 const DEFAULT_LOG_LEVEL = 1;
 const logLevels = {
@@ -50,6 +51,36 @@ function defaultAgentSocket() {
     default:
       return 'unix:///var/run/blackfire/agent.sock';
   }
+}
+
+function defaultLabels() {
+  let labels = {
+    'runtime': 'nodejs',
+    'runtime_os': process.platform,
+    'runtime_arch': process.arch,
+    'runtime_version': process.version,
+    'host': os.hostname(),
+  };
+
+  // Collect more labels from environment variables. Priority matters for the same label name.
+  const lookup = [
+    {labelName: 'application_name', envVar: 'BLACKFIRE_CONPROF_APP_NAME'},
+    {labelName: 'application_name', envVar: 'PLATFORM_APPLICATION_NAME'},
+
+    {labelName: 'project_id', envVar: 'PLATFORM_PROJECT'},
+  ]
+
+  lookup.forEach((entry) => {
+    if (entry.labelName in labels) {
+      return;
+    }
+
+    if (entry.envVar in process.env) {
+      labels[entry.labelName] = process.env[entry.envVar];
+    }
+  })
+
+  return labels;
 }
 
 const periodMillis = 1000;
@@ -143,6 +174,10 @@ function start(config) {
   currentProfilingSession.active = true;
 
   const mergedConfig = { ...defaultConfig, ...config };
+
+  // Merge the labels
+  config.labels = { ...defaultLabels(), ...config.labels }
+
   const axiosConfig = getAxiosConfig(mergedConfig);
 
   logger.debug('Starting profiler');
