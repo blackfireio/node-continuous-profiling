@@ -83,6 +83,7 @@ function defaultLabels() {
   return labels;
 }
 
+/** time in milliseconds for which to send the collected profile. */
 const periodMillis = 45_000;
 
 const defaultConfig = {
@@ -167,11 +168,13 @@ function getAxiosConfig(blackfireConfig) {
   };
 }
 
-function start(config) {
+function start(config, testConfig = {}) {
   if (currentProfilingSession.active) {
     logger.error('Profiler is already running');
     return false;
   }
+
+  const internalPeriodMillis = testConfig.periodMillis || periodMillis;
 
   currentProfilingSession.active = true;
 
@@ -199,8 +202,8 @@ function start(config) {
   let profileNextTimeout;
 
   // profiling duration should be less than the period
-  if (mergedConfig.durationMillis > periodMillis) {
-    mergedConfig.durationMillis = periodMillis;
+  if (mergedConfig.durationMillis > internalPeriodMillis) {
+    mergedConfig.durationMillis = internalPeriodMillis;
   }
 
   function doProfile() {
@@ -238,7 +241,7 @@ function start(config) {
       // restart profiling after period elapsed
       profileNextTimeout = setTimeout(() => {
         doProfile();
-      }, periodMillis - mergedConfig.durationMillis);
+      }, internalPeriodMillis - mergedConfig.durationMillis);
     }, mergedConfig.durationMillis);
 
     currentProfilingSession.stop = () => {
