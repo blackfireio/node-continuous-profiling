@@ -24,7 +24,7 @@ test('Blackfire imports', () => {
 test.each([
   { listenTo: 4141, agentSocket: 'http://localhost:4141' },
   { listenTo: 4242, agentSocket: 'tcp://127.0.0.1:4242' },
-  //{ listenTo: '/tmp/blackfire_nodejs_test.sock', agentSocket: 'unix:///tmp/blackfire_nodejs_test.sock' },
+  { listenTo: '/tmp/blackfire_nodejs_test.sock', agentSocket: 'unix:///tmp/blackfire_nodejs_test.sock' },
 ])('Profile is sent ($agentSocket)', ({ listenTo, agentSocket }, done) => {
   const app = express();
   app.use(fileUpload());
@@ -94,7 +94,7 @@ test('Sampling parameters', (done) => {
       agentSocket: 'http://localhost:4242',
       durationMillis: 500, // ms
       cpuProfileRate: 100, // Hz
-    }, {periodMillis: 400})).toBeTruthy();
+    }, { periodMillis: 400 })).toBeTruthy();
   });
 
   let requestCount = 0;
@@ -130,7 +130,7 @@ test('Stop function', (done) => {
     expect(Blackfire.start({
       agentSocket: 'http://localhost:4242',
       durationMillis: 5000, // ms
-    }, {periodMillis: 300})).toBeTruthy();
+    }, { periodMillis: 300 })).toBeTruthy();
   });
 
   expect.hasAssertions();
@@ -171,7 +171,7 @@ describe('Environment variables', () => {
         labels: {
           foo: 'bar',
         },
-      }, {periodMillis: 10})).toBeTruthy();
+      }, { periodMillis: 10 })).toBeTruthy();
     });
 
     expect.hasAssertions();
@@ -208,7 +208,7 @@ describe('Environment variables', () => {
         labels: {
           foo: 'bar',
         },
-      }, {periodMillis: 10})).toBeTruthy();
+      }, { periodMillis: 10 })).toBeTruthy();
     });
 
     expect.hasAssertions();
@@ -238,7 +238,7 @@ describe('Environment variables', () => {
         labels: {
           foo: 'bar',
         },
-      }, {periodMillis: 10})).toBeTruthy();
+      }, { periodMillis: 10 })).toBeTruthy();
     });
 
     expect.hasAssertions();
