@@ -83,13 +83,13 @@ function defaultLabels() {
   return labels;
 }
 
-const periodMillis = 1000;
+const periodMillis = 45_000;
 
 const defaultConfig = {
   /** name of the application */
   appName: 'my-node-app',
   /** time in milliseconds for which to collect profile. */
-  durationMillis: 1000,
+  durationMillis: 45_000,
   /** average sampling frequency in Hz. (times per second) */
   cpuProfileRate: 100,
   /** socket to the Blackfire agent. */
