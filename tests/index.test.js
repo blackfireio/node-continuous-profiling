@@ -90,11 +90,12 @@ test('Sampling parameters', (done) => {
   const app = express();
   app.use(fileUpload());
   const server = app.listen(4242, () => {
+    global.periodMillis = 400;
     expect(Blackfire.start({
       agentSocket: 'http://localhost:4242',
       durationMillis: 500, // ms
       cpuProfileRate: 100, // Hz
-    }, { periodMillis: 400 })).toBeTruthy();
+    })).toBeTruthy();
   });
 
   let requestCount = 0;
@@ -127,10 +128,11 @@ test('Sampling parameters', (done) => {
 test('Stop function', (done) => {
   const app = express();
   const server = app.listen(4242, () => {
+    global.periodMillis = 300;
     expect(Blackfire.start({
       agentSocket: 'http://localhost:4242',
       durationMillis: 5000, // ms
-    }, { periodMillis: 300 })).toBeTruthy();
+    })).toBeTruthy();
   });
 
   expect.hasAssertions();
@@ -166,12 +168,13 @@ describe('Environment variables', () => {
     const app = express();
     app.use(fileUpload());
     const server = app.listen(4242, () => {
+      global.periodMillis = 10;
       expect(Blackfire.start({
         agentSocket: 'http://localhost:4242',
         labels: {
           foo: 'bar',
         },
-      }, { periodMillis: 10 })).toBeTruthy();
+      })).toBeTruthy();
     });
 
     expect.hasAssertions();
@@ -202,13 +205,14 @@ describe('Environment variables', () => {
     const app = express();
     app.use(fileUpload());
     const server = app.listen(4242, () => {
+      global.periodMillis = 10;
       expect(Blackfire.start({
         appName: 'My super app',
         agentSocket: 'http://localhost:4242',
         labels: {
           foo: 'bar',
         },
-      }, { periodMillis: 10 })).toBeTruthy();
+      })).toBeTruthy();
     });
 
     expect.hasAssertions();
@@ -233,12 +237,13 @@ describe('Environment variables', () => {
     const app = express();
     app.use(fileUpload());
     const server = app.listen(4242, () => {
+      global.periodMillis = 10;
       expect(Blackfire.start({
         agentSocket: 'http://localhost:4242',
         labels: {
           foo: 'bar',
         },
-      }, { periodMillis: 10 })).toBeTruthy();
+      })).toBeTruthy();
     });
 
     expect.hasAssertions();
