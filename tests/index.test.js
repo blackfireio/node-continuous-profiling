@@ -186,7 +186,7 @@ describe('Environment variables', () => {
         Blackfire.stop();
 
         expect(req.body).toBeDefined();
-        expect(Object.keys(req.body)).toHaveLength(8);
+        expect(Object.keys(req.body)).toHaveLength(9);
 
         expect(req.body.runtime).toBe('nodejs');
         expect(req.body.application_name).toBe('my-app');
