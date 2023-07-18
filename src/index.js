@@ -55,6 +55,7 @@ function defaultAgentSocket() {
 
 function defaultLabels() {
   const labels = {
+    language: 'javascript',
     runtime: 'nodejs',
     runtime_os: process.platform,
     runtime_arch: process.arch,
