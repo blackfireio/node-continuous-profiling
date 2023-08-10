@@ -1,7 +1,7 @@
+const { gunzipSync } = require('zlib');
 const express = require('express');
 const fileUpload = require('express-fileupload');
 const { Profile } = require('pprof-format');
-const { gunzipSync } = require('zlib');
 const Blackfire = require('../src/index');
 
 jest.setTimeout(2000);

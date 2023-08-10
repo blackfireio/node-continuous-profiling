@@ -1,8 +1,8 @@
+const os = require('os');
 const pprof = require('pprof');
 const FormData = require('form-data');
 const axios = require('axios');
 const winston = require('winston');
-const os = require('os');
 
 const DEFAULT_LOG_LEVEL = 1;
 const logLevels = {
