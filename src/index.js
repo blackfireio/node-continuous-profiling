@@ -3,6 +3,7 @@ const pprof = require('pprof');
 const FormData = require('form-data');
 const axios = require('axios');
 const winston = require('winston');
+const version = require('../package.json').version;
 
 const DEFAULT_LOG_LEVEL = 1;
 const logLevels = {
@@ -61,6 +62,7 @@ function defaultLabels() {
     runtime_arch: process.arch,
     runtime_version: process.version,
     host: os.hostname(),
+    probe_version: version,
   };
 
   // Collect more labels from environment variables. Priority matters for the same label name.
