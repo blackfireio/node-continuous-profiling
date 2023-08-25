@@ -3,7 +3,7 @@ const pprof = require('pprof');
 const FormData = require('form-data');
 const axios = require('axios');
 const winston = require('winston');
-const version = require('../package.json').version;
+const { version } = require('../package.json');
 
 const DEFAULT_LOG_LEVEL = 1;
 const logLevels = {
