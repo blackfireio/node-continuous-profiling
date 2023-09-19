@@ -1,4 +1,4 @@
-# Experimental Blackfire Continuous Profiler for Node.js
+# Blackfire Continuous Profiler for Node.js
 
 Blackfire Continuous Profiler continuously collects and uploads profiling data to the Blackfire servers. Once enabled, the profiler collects the relevant profiling information in configurable intervals and periodically uploads it to the Blackfire Agent. Blackfire Agent then forwards this information to the backend.
 
@@ -10,10 +10,10 @@ Blackfire Continuous Profiler continuously collects and uploads profiling data t
 
 ## Installation
 ```shell
-npm install @blackfire/nodejs
+npm install @blackfireio/node-tracing
 ```
 ```js
-const Blackfire = require('@blackfire/nodejs');
+const Blackfire = require('@blackfireio/node-tracing');
 ```
 
 ## API
@@ -31,10 +31,10 @@ It collects profiling information in the background and periodically uploads it 
 An example using default configuration (`Blackfire.defaultConfig`) that can be used with `start`:
 
 ```js
-const Blackfire = require('@blackfire/nodejs');
+const Blackfire = require('@blackfireio/node-tracing');
 Blackfire.start({
    appName: 'my-app'
-   /** socket to the Blackfire agent. */
+   // socket to the Blackfire agent.
    // agentSocket: 'unix:///var/run/blackfire/agent.sock'
 });
 // your application...
@@ -47,13 +47,13 @@ Blackfire.start({
 1. Install dependencies
 
 ```shell
-npm install express @blackfire/nodejs
+npm install express @blackfireio/node-tracing
 ```
 
 2. Create `index.js` with the following code
 
 ```js
-const Blackfire = require('@blackfire/nodejs');
+const Blackfire = require('@blackfireio/node-tracing');
 const express = require('express')
 const crypto = require("crypto");
 const app = express()

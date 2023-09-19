@@ -1,5 +1,5 @@
 {
-  "name": "@blackfire/nodejs",
+  "name": "@blackfireio/node-tracing",
   "version": "0.1.0",
   "description": "",
   "main": "src/index.js",
