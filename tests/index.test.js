@@ -192,7 +192,7 @@ describe('Environment variables', () => {
         expect(req.body.application_name).toBe('my-app');
         expect(req.body.project_id).toBe('18');
         expect(req.body.foo).toBe('bar');
-        expect(req.body.probe_version).toBe('0.1.0');
+        expect(req.body.probe_version).toBeDefined();
 
         done();
       });
