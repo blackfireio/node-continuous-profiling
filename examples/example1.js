@@ -1,4 +1,4 @@
-const Blackfire = require('@blackfire/nodejs');
+const Blackfire = require('@blackfireio/node-tracing');
 const express = require('express')
 const crypto = require("crypto");
 const app = express()
