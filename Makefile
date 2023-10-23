@@ -14,30 +14,30 @@ endif
 ### Tests
 ##
 
-test: yarn-install ## Runs tests suite
-	$(ON_NODE) yarn test
+test: npm-install ## Runs tests suite
+	$(ON_NODE) npm run test
 .PHONY: test
 
-eslint: yarn-install ## Runs Eslint to report code style issues
-	$(ON_NODE) yarn eslint src/ tests/
+eslint: npm-install ## Runs Eslint to report code style issues
+	$(ON_NODE) ./node_modules/.bin/eslint src/ tests/
 
-eslint-fix: yarn-install ## Runs Eslint to fix code style issues
-	$(ON_NODE) yarn eslint --fix src/ tests/
+eslint-fix: npm-install ## Runs Eslint to fix code style issues
+	$(ON_NODE) ./node_modules/.bin/eslint --fix src/ tests/
 
 print-version:
 	@jq -r '.version' package.json
 
 ##
-### Yarn
+### Npm
 ##
-yarn-install: yarn.lock ## Install node dependencies
+npm-install: package-lock.json ## Install node dependencies
 .PHONY: npm-install
 
-yarn.lock:
-	$(ON_NODE) yarn install
+package-lock.json:
+	$(ON_NODE) npm install
 
-yarn-clear: ## Delete local dependencies
-	rm -rf ./yarn.lock ./node_modules
+npm-clear: ## Delete local dependencies
+	rm -rf ./package-lock.json ./node_modules
 
 ##
 ### Docker
