@@ -80,8 +80,7 @@ BLACKFIRE_SOCKET="tcp://127.0.0.1:8307" blackfire agent --log-level=4
 ```
 
 4. Run NodeJs server. (`node index.js`)
-5. Profiler will send data to the Agent, and Agent will forward it to the Blackfire
-   backend. Data then can be visualized at https://blackfire.io
+5. Profiler will send data to the Agent, and Agent will forward it to the Blackfire backend. Data then can be visualized at https://blackfire.io
 
 # Contributing
 
