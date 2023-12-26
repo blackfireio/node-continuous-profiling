@@ -10,7 +10,9 @@ RUN set -eux; \
 # verify that the binary works
 	gosu nobody true
 
-RUN gem install thor:1.2.2 rake package_cloud
+RUN gem install thor:1.2.2 rake
+RUN gem install domain_name -v 0.5.20190701
+RUN gem install package_cloud:0.3.10
 
 RUN curl -Lo gh.tar.gz https://github.com/cli/cli/releases/download/v1.2.0/gh_1.2.0_linux_amd64.tar.gz \
     && tar xzf gh.tar.gz \
