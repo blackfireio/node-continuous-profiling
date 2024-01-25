@@ -147,7 +147,7 @@ async function sendProfileToBlackfireAgent(axiosConfig, config, profile) {
     })
     .catch((error) => {
       if (error.response) {
-        logger.error(`Blackfire agent returned an error: ${error.response.data}`);
+        logger.error(`Blackfire agent returned an error: ${JSON.stringify(error.response.data)}`);
       } else if (error.request) {
         logger.error(`No response from Blackfire agent: ${error.message}`);
       } else {
