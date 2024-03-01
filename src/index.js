@@ -108,68 +108,68 @@ const defaultConfig = {
   uploadTimeoutMillis: 10000,
 };
 
-async function sendProfileToBlackfireAgent(axiosConfig, config, profile) {
-  logger.debug('Sending profile to Agent');
+// async function sendProfileToBlackfireAgent(axiosConfig, config, profile) {
+//   logger.debug('Sending profile to Agent');
 
-  const buf = await pprof.encode(profile);
+//   const buf = await pprof.encode(profile);
 
-  const formData = new FormData();
+//   const formData = new FormData();
 
-  // add labels to the form data
-  if (config.labels) {
-    Object.keys(config.labels).forEach((key) => {
-      formData.append(key, config.labels[key]);
-    });
-  }
+//   // add labels to the form data
+//   if (config.labels) {
+//     Object.keys(config.labels).forEach((key) => {
+//       formData.append(key, config.labels[key]);
+//     });
+//   }
 
-  formData.append('profile', buf, {
-    knownLength: buf.byteLength,
-    contentType: 'text/json',
-    filename: 'profile.pprof',
-  });
+//   formData.append('profile', buf, {
+//     knownLength: buf.byteLength,
+//     contentType: 'text/json',
+//     filename: 'profile.pprof',
+//   });
 
-  const url = '/profiling/v1/input';
-  logger.debug(`Sending data to ${axiosConfig.baseURL}${url}`);
+//   const url = '/profiling/v1/input';
+//   logger.debug(`Sending data to ${axiosConfig.baseURL}${url}`);
 
-  // send data to the server
-  await axios(url, {
-    ...axiosConfig,
-    ...{
-      headers: {
-        ...axiosConfig.headers,
-        ...formData.getHeaders(),
-      },
-      data: formData,
-    },
-  })
-    .then(() => {
-      logger.debug('Profile sent to the agent');
-    })
-    .catch((error) => {
-      if (error.response) {
-        logger.error(`Blackfire agent returned an error: ${JSON.stringify(error.response.data)}`);
-      } else if (error.request) {
-        logger.error(`No response from Blackfire agent: ${error.message}`);
-      } else {
-        logger.error(`Failed to send profile to Blackfire agent: ${error.message}`);
-      }
-    });
-}
+//   // send data to the server
+//   await axios(url, {
+//     ...axiosConfig,
+//     ...{
+//       headers: {
+//         ...axiosConfig.headers,
+//         ...formData.getHeaders(),
+//       },
+//       data: formData,
+//     },
+//   })
+//     .then(() => {
+//       logger.debug('Profile sent to the agent');
+//     })
+//     .catch((error) => {
+//       if (error.response) {
+//         logger.error(`Blackfire agent returned an error: ${JSON.stringify(error.response.data)}`);
+//       } else if (error.request) {
+//         logger.error(`No response from Blackfire agent: ${error.message}`);
+//       } else {
+//         logger.error(`Failed to send profile to Blackfire agent: ${error.message}`);
+//       }
+//     });
+// }
 
-function getAxiosConfig(blackfireConfig) {
-  const uri = new URL(blackfireConfig.agentSocket);
-  const isSocket = uri.protocol === 'unix:';
+// function getAxiosConfig(blackfireConfig) {
+//   const uri = new URL(blackfireConfig.agentSocket);
+//   const isSocket = uri.protocol === 'unix:';
 
-  return {
-    method: 'POST',
-    headers: blackfireConfig.serverId && blackfireConfig.serverToken ? {
-      Authorization: `Basic ${Buffer.from(`${blackfireConfig.serverId}:${blackfireConfig.serverToken}`).toString('base64')}`,
-    } : {},
-    baseURL: isSocket ? 'http://unix/' : uri.href,
-    socketPath: isSocket ? uri.pathname : undefined,
-    timeout: blackfireConfig.uploadTimeoutMillis,
-  };
-}
+//   return {
+//     method: 'POST',
+//     headers: blackfireConfig.serverId && blackfireConfig.serverToken ? {
+//       Authorization: `Basic ${Buffer.from(`${blackfireConfig.serverId}:${blackfireConfig.serverToken}`).toString('base64')}`,
+//     } : {},
+//     baseURL: isSocket ? 'http://unix/' : uri.href,
+//     socketPath: isSocket ? uri.pathname : undefined,
+//     timeout: blackfireConfig.uploadTimeoutMillis,
+//   };
+// }
 
 function start(config) {
   if (currentProfilingSession.active) {
@@ -196,64 +196,64 @@ function start(config) {
     };
   }
 
-  const axiosConfig = getAxiosConfig(mergedConfig);
+  //const axiosConfig = getAxiosConfig(mergedConfig);
 
   logger.debug('Starting profiler');
-  let stopAndUploadTimeout;
-  let profileNextTimeout;
+  // let stopAndUploadTimeout;
+  // let profileNextTimeout;
 
   // profiling duration should be less than the period
   if (mergedConfig.durationMillis > global.periodMillis) {
     mergedConfig.durationMillis = global.periodMillis;
   }
 
-  function doProfile() {
-    logger.debug('Collecting new profile');
+  // function doProfile() {
+  //   logger.debug('Collecting new profile');
 
-    const pprofStop = pprof.time.start(
-      1_000_000 / mergedConfig.cpuProfileRate, // 1s divided by rate
-      undefined,
-      undefined,
-      true,
-    );
-    currentProfilingSession.profiling = true;
+  //   const pprofStop = pprof.time.start(
+  //     1_000_000 / mergedConfig.cpuProfileRate, // 1s divided by rate
+  //     undefined,
+  //     undefined,
+  //     true,
+  //   );
+  //   currentProfilingSession.profiling = true;
 
-    const stopProfiling = () => {
-      if (!currentProfilingSession.profiling) {
-        return {};
-      }
-      const profile = pprofStop();
-      currentProfilingSession.profiling = false;
-      return profile;
-    };
+  //   const stopProfiling = () => {
+  //     if (!currentProfilingSession.profiling) {
+  //       return {};
+  //     }
+  //     const profile = pprofStop();
+  //     currentProfilingSession.profiling = false;
+  //     return profile;
+  //   };
 
-    const stopProfilingAndUpload = () => {
-      logger.debug('stopProfilingAndUpload');
-      const profile = stopProfiling();
-      if (profile) {
-        sendProfileToBlackfireAgent(axiosConfig, mergedConfig, profile);
-      }
-    };
+  //   const stopProfilingAndUpload = () => {
+  //     logger.debug('stopProfilingAndUpload');
+  //     const profile = stopProfiling();
+  //     if (profile) {
+  //       sendProfileToBlackfireAgent(axiosConfig, mergedConfig, profile);
+  //     }
+  //   };
 
-    // setup next profiling cycle
-    stopAndUploadTimeout = setTimeout(() => {
-      stopProfilingAndUpload();
+  //   // setup next profiling cycle
+  //   stopAndUploadTimeout = setTimeout(() => {
+  //     stopProfilingAndUpload();
 
-      // restart profiling after period elapsed
-      profileNextTimeout = setTimeout(() => {
-        doProfile();
-      }, global.periodMillis - mergedConfig.durationMillis);
-    }, mergedConfig.durationMillis);
+  //     // restart profiling after period elapsed
+  //     profileNextTimeout = setTimeout(() => {
+  //       doProfile();
+  //     }, global.periodMillis - mergedConfig.durationMillis);
+  //   }, mergedConfig.durationMillis);
 
-    currentProfilingSession.stop = () => {
-      clearTimeout(stopAndUploadTimeout);
-      clearTimeout(profileNextTimeout);
+  //   currentProfilingSession.stop = () => {
+  //     clearTimeout(stopAndUploadTimeout);
+  //     clearTimeout(profileNextTimeout);
 
-      stopProfiling();
-    };
-  }
+  //     stopProfiling();
+  //   };
+  // }
 
-  doProfile();
+  // doProfile();
   return true;
 }
 
