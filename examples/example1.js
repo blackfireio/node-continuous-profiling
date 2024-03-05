@@ -9,8 +9,6 @@ app.get('/', (req, res) => {
    const hash = crypto.pbkdf2Sync("this is my password", salt, 10000, 512, "sha512");
 
    res.send('Hello World!');
-
-   Blackfire.stop();
 })
 
 

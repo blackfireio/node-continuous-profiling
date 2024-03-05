@@ -1,7 +1,4 @@
 const os = require('os');
-const pprof = require('pprof');
-const FormData = require('form-data');
-const axios = require('axios');
 const winston = require('winston');
 const { version } = require('../package.json');
 
@@ -87,15 +84,11 @@ function defaultLabels() {
 }
 
 /** time in milliseconds for which to send the collected profile. */
-global.periodMillis = 45_000;
+global.periodMillis = 1_000; // TODO: 45_000
 
 const defaultConfig = {
   /** name of the application */
   appName: 'my-node-app',
-  /** time in milliseconds for which to collect profile. */
-  durationMillis: 45_000,
-  /** average sampling frequency in Hz. (times per second) */
-  cpuProfileRate: 100,
   /** socket to the Blackfire agent. */
   agentSocket: process.env.BLACKFIRE_AGENT_SOCKET || defaultAgentSocket(),
   /** Blackfire Server ID (should be defined with serverToken). */
@@ -107,69 +100,6 @@ const defaultConfig = {
   /** Timeout in milliseconds for the upload request. */
   uploadTimeoutMillis: 10000,
 };
-
-// async function sendProfileToBlackfireAgent(axiosConfig, config, profile) {
-//   logger.debug('Sending profile to Agent');
-
-//   const buf = await pprof.encode(profile);
-
-//   const formData = new FormData();
-
-//   // add labels to the form data
-//   if (config.labels) {
-//     Object.keys(config.labels).forEach((key) => {
-//       formData.append(key, config.labels[key]);
-//     });
-//   }
-
-//   formData.append('profile', buf, {
-//     knownLength: buf.byteLength,
-//     contentType: 'text/json',
-//     filename: 'profile.pprof',
-//   });
-
-//   const url = '/profiling/v1/input';
-//   logger.debug(`Sending data to ${axiosConfig.baseURL}${url}`);
-
-//   // send data to the server
-//   await axios(url, {
-//     ...axiosConfig,
-//     ...{
-//       headers: {
-//         ...axiosConfig.headers,
-//         ...formData.getHeaders(),
-//       },
-//       data: formData,
-//     },
-//   })
-//     .then(() => {
-//       logger.debug('Profile sent to the agent');
-//     })
-//     .catch((error) => {
-//       if (error.response) {
-//         logger.error(`Blackfire agent returned an error: ${JSON.stringify(error.response.data)}`);
-//       } else if (error.request) {
-//         logger.error(`No response from Blackfire agent: ${error.message}`);
-//       } else {
-//         logger.error(`Failed to send profile to Blackfire agent: ${error.message}`);
-//       }
-//     });
-// }
-
-// function getAxiosConfig(blackfireConfig) {
-//   const uri = new URL(blackfireConfig.agentSocket);
-//   const isSocket = uri.protocol === 'unix:';
-
-//   return {
-//     method: 'POST',
-//     headers: blackfireConfig.serverId && blackfireConfig.serverToken ? {
-//       Authorization: `Basic ${Buffer.from(`${blackfireConfig.serverId}:${blackfireConfig.serverToken}`).toString('base64')}`,
-//     } : {},
-//     baseURL: isSocket ? 'http://unix/' : uri.href,
-//     socketPath: isSocket ? uri.pathname : undefined,
-//     timeout: blackfireConfig.uploadTimeoutMillis,
-//   };
-// }
 
 function start(config) {
   if (currentProfilingSession.active) {
@@ -196,77 +126,37 @@ function start(config) {
     };
   }
 
-  //const axiosConfig = getAxiosConfig(mergedConfig);
-
   logger.debug('Starting profiler');
-  // let stopAndUploadTimeout;
-  // let profileNextTimeout;
 
-  // profiling duration should be less than the period
-  if (mergedConfig.durationMillis > global.periodMillis) {
-    mergedConfig.durationMillis = global.periodMillis;
+  process.env.DD_PROFILING_UPLOAD_PERIOD = global.periodMillis / 1000;
+  process.env.DD_PROFILING_UPLOAD_TIMEOUT = mergedConfig.uploadTimeoutMillis;
+  process.env.DD_INSTRUMENTATION_TELEMETRY_ENABLED = "False";
+  process.env.DD_PROFILING_EXPERIMENTAL_CPU_ENABLED = 1;
+  process.env.DD_TRACE_AGENT_URL = mergedConfig.agentSocket;
+
+  // enable trace debug if loglevel is set to debug
+  if (logger.level == "debug") {
+    process.env.DD_TRACE_DEBUG = true;
   }
 
-  // function doProfile() {
-  //   logger.debug('Collecting new profile');
+  const tracer = require('dd-trace').init({
+    profiling: true,
+    service: mergedConfig.appName,
+    tags: mergedConfig.labels,
+    logger: {
+      error: err => logger.error(err),
+      warn: message => logger.warn(message),
+      info: message => logger.info(message),
+      debug: message => logger.debug(message),
+    },
+  })
 
-  //   const pprofStop = pprof.time.start(
-  //     1_000_000 / mergedConfig.cpuProfileRate, // 1s divided by rate
-  //     undefined,
-  //     undefined,
-  //     true,
-  //   );
-  //   currentProfilingSession.profiling = true;
-
-  //   const stopProfiling = () => {
-  //     if (!currentProfilingSession.profiling) {
-  //       return {};
-  //     }
-  //     const profile = pprofStop();
-  //     currentProfilingSession.profiling = false;
-  //     return profile;
-  //   };
-
-  //   const stopProfilingAndUpload = () => {
-  //     logger.debug('stopProfilingAndUpload');
-  //     const profile = stopProfiling();
-  //     if (profile) {
-  //       sendProfileToBlackfireAgent(axiosConfig, mergedConfig, profile);
-  //     }
-  //   };
-
-  //   // setup next profiling cycle
-  //   stopAndUploadTimeout = setTimeout(() => {
-  //     stopProfilingAndUpload();
-
-  //     // restart profiling after period elapsed
-  //     profileNextTimeout = setTimeout(() => {
-  //       doProfile();
-  //     }, global.periodMillis - mergedConfig.durationMillis);
-  //   }, mergedConfig.durationMillis);
-
-  //   currentProfilingSession.stop = () => {
-  //     clearTimeout(stopAndUploadTimeout);
-  //     clearTimeout(profileNextTimeout);
-
-  //     stopProfiling();
-  //   };
-  // }
-
-  // doProfile();
   return true;
 }
 
+// stop is currently not possible, see https://github.com/DataDog/dd-trace-js/issues/1258#issuecomment-1716788888 and
+// https://github.com/DataDog/dd-trace-js/issues/1800 for more details
 function stop() {
-  if (!currentProfilingSession.active) {
-    return false;
-  }
-
-  logger.debug('Stopping profiler');
-  currentProfilingSession.stop();
-
-  currentProfilingSession.active = false;
-
   return true;
 }
 
