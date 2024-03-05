@@ -84,7 +84,7 @@ function defaultLabels() {
 }
 
 /** time in milliseconds for which to send the collected profile. */
-global.periodMillis = 1_000; // TODO: 45_000
+global.periodMillis = 45_000;
 
 const defaultConfig = {
   /** name of the application */
