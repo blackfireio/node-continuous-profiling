@@ -1,5 +1,6 @@
 const os = require('os');
 const winston = require('winston');
+const ddtrace = require('dd-trace');
 const { version } = require('../package.json');
 
 const DEFAULT_LOG_LEVEL = 1;
@@ -130,26 +131,26 @@ function start(config) {
 
   process.env.DD_PROFILING_UPLOAD_PERIOD = global.periodMillis / 1000;
   process.env.DD_PROFILING_UPLOAD_TIMEOUT = mergedConfig.uploadTimeoutMillis;
-  process.env.DD_INSTRUMENTATION_TELEMETRY_ENABLED = "False";
+  process.env.DD_INSTRUMENTATION_TELEMETRY_ENABLED = 'False';
   process.env.DD_PROFILING_EXPERIMENTAL_CPU_ENABLED = 1;
   process.env.DD_TRACE_AGENT_URL = mergedConfig.agentSocket;
 
   // enable trace debug if loglevel is set to debug
-  if (logger.level == "debug") {
+  if (logger.level === 'debug') {
     process.env.DD_TRACE_DEBUG = true;
   }
 
-  const tracer = require('dd-trace').init({
+  ddtrace.init({
     profiling: true,
     service: mergedConfig.appName,
     tags: mergedConfig.labels,
     logger: {
-      error: err => logger.error(err),
-      warn: message => logger.warn(message),
-      info: message => logger.info(message),
-      debug: message => logger.debug(message),
+      error: (err) => logger.error(err),
+      warn: (message) => logger.warn(message),
+      info: (message) => logger.info(message),
+      debug: (message) => logger.debug(message),
     },
-  })
+  });
 
   return true;
 }
