@@ -16,10 +16,9 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^0.26.1",
-    "dd-trace": "^5.5.0",
+    "dd-trace": "^3.50.0",
     "debug": "^4.3.3",
     "form-data": "^4.0.0",
-    "pprof": "^3.2.0",
     "winston": "^3.9.0",
     "yarn": "^1.22.19"
   },
