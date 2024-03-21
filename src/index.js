@@ -20,8 +20,10 @@ const logger = winston.createLogger({
   ),
   level: logLevels[process.env.BLACKFIRE_LOG_LEVEL || DEFAULT_LOG_LEVEL],
 });
-if (process.env.BLACKFIRE_LOG_FILE) {
-  logger.add(new winston.transports.File({ filename: process.env.BLACKFIRE_LOG_FILE }));
+
+const logFile = process.env.BLACKFIRE_LOG_FILE;
+if (logFile && logFile !== "stderr") {
+  logger.add(new winston.transports.File({ filename: logFile }));
 } else {
   logger.add(new winston.transports.Console());
 }
