@@ -22,7 +22,7 @@ const logger = winston.createLogger({
 });
 
 const logFile = process.env.BLACKFIRE_LOG_FILE;
-if (logFile && logFile !== "stderr") {
+if (logFile && logFile !== 'stderr') {
   logger.add(new winston.transports.File({ filename: logFile }));
 } else {
   logger.add(new winston.transports.Console());
