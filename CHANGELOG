@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+* v1.1.5 (2024-09-18)
+
+  - Fix package version
+
 * v1.1.4 (2024-09-18)
 
   - Internal releasing updates
