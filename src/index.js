@@ -133,8 +133,8 @@ function start(config) {
 
   process.env.DD_PROFILING_UPLOAD_PERIOD = global.periodMillis / 1000;
   process.env.DD_PROFILING_UPLOAD_TIMEOUT = mergedConfig.uploadTimeoutMillis;
-  process.env.DD_INSTRUMENTATION_TELEMETRY_ENABLED = 'False';
-  process.env.DD_PROFILING_EXPERIMENTAL_CPU_ENABLED = 1;
+  process.env.DD_INSTRUMENTATION_TELEMETRY_ENABLED = 'false';
+  process.env.DD_PROFILING_CPU_ENABLED = 1;
   process.env.DD_TRACE_AGENT_URL = mergedConfig.agentSocket;
 
   // enable trace debug if loglevel is set to debug
@@ -146,6 +146,10 @@ function start(config) {
     profiling: true,
     service: mergedConfig.appName,
     tags: mergedConfig.labels,
+    logInjection: false,
+    startupLogs: false,
+    runtimeMetrics: false,
+    plugins: false,
     logger: {
       error: (err) => logger.error(err),
       warn: (message) => logger.warn(message),
