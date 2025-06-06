@@ -10,19 +10,30 @@ else
 	ON_NODE=
 endif
 
+NODE_VERSION ?= latest
+ON_NODE_PRUNE=docker run --rm -w /workspace -v $(shell pwd):/workspace node:$(NODE_VERSION)
+
 ##
 ### Tests
 ##
 
 test: npm-install ## Runs tests suite
+ifdef GITLAB_CI
+	$(ON_NODE_PRUNE) npm run test
+else
 	$(ON_NODE) npm run test
+endif
 .PHONY: test
 
 eslint: npm-install ## Runs Eslint to report code style issues
-	$(ON_NODE) ./node_modules/.bin/eslint src/ tests/
+ifdef GITLAB_CI
+	$(ON_NODE_PRUNE) npx eslint src/ tests/
+else
+	$(ON_NODE) npx eslint src/ tests/
+endif
 
 eslint-fix: npm-install ## Runs Eslint to fix code style issues
-	$(ON_NODE) ./node_modules/.bin/eslint --fix src/ tests/
+	$(ON_NODE) npx eslint --fix src/ tests/
 
 print-version:
 	@jq -r '.version' package.json
@@ -34,7 +45,11 @@ npm-install: package-lock.json ## Install node dependencies
 .PHONY: npm-install
 
 package-lock.json:
+ifdef GITLAB_CI
+	$(ON_NODE_PRUNE) npm install
+else
 	$(ON_NODE) npm install
+endif
 
 npm-clear: ## Delete local dependencies
 	rm -rf ./package-lock.json ./node_modules
