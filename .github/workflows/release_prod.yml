@@ -56,7 +56,6 @@ jobs:
           node-version: latest
 
       - run: |
-          chmod +x release.sh
           ./release.sh
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
