@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  id-token: write  # Required for OIDC
+  contents: read
+
 jobs:
   coding-style:
     name: Probe NodeJs - Code Style
@@ -58,5 +62,4 @@ jobs:
       - run: |
           ./release.sh
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           TAG: ${{ github.ref_name }}
