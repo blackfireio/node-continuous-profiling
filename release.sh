@@ -10,5 +10,4 @@ if [ "$TAG" != "v$VERSION" ]; then
     exit 255
 fi
 
-npm set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
-npm publish --access public
+npm publish --access public --provenance
