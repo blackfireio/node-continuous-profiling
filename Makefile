@@ -25,6 +25,14 @@ else
 endif
 .PHONY: test
 
+test-types: npm-install ## Runs type definition tests
+ifdef GITLAB_CI
+	$(ON_NODE_PRUNE) npx tsd
+else
+	$(ON_NODE) npx tsd
+endif
+.PHONY: test-types
+
 eslint: npm-install ## Runs Eslint to report code style issues
 ifdef GITLAB_CI
 	$(ON_NODE_PRUNE) npx eslint src/ tests/
