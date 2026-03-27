@@ -2,7 +2,10 @@
 
 Blackfire Continuous Profiler continuously collects and uploads profiling data to the Blackfire servers. Once enabled, the profiler collects the relevant profiling information in configurable intervals and periodically uploads it to the Blackfire Agent. Blackfire Agent then forwards this information to the backend.
 
+Under the hood, this profiler uses [Datadog's dd-trace-js](https://github.com/DataDog/dd-trace-js) (v5.92.0+) for profiling data collection.
+
 # How to use
+
 ## Prerequisites
 
 * Node.js >= 16.0.0
