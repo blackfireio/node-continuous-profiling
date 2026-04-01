@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+* v1.1.17 (2026-03-31)
+
+  - Internal releasing changes
+
 * v1.1.16 (2026-02-23)
 
   - Add Typescript definition for node SDK
