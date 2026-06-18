@@ -71,10 +71,6 @@ const defaultConfig = {
   appName: 'my-node-app',
   /** socket to the Blackfire agent. */
   agentSocket: process.env.BLACKFIRE_AGENT_SOCKET || defaultAgentSocket(),
-  /** Blackfire Server ID (should be defined with serverToken). */
-  serverId: undefined,
-  /** Blackfire Server Token (should be defined with serverId). */
-  serverToken: undefined,
   /** Labels to add to the profile. */
   labels: {},
   /** Timeout in milliseconds for the upload request. */

@@ -45,6 +45,8 @@ Blackfire.start({
 // Blackfire.stop();
 ```
 
+Authentication is handled by the Blackfire Agent, not the probe: the agent forwards profiles to the backend using its own credentials (`BLACKFIRE_SERVER_ID` / `BLACKFIRE_SERVER_TOKEN` configured on the agent). The probe only needs to reach the agent socket.
+
 ## Example
 
 1. Install dependencies

@@ -8,9 +8,7 @@ test('Blackfire imports', () => {
 
   expect(Blackfire.defaultConfig).toHaveProperty('appName');
   expect(Blackfire.defaultConfig).toHaveProperty('agentSocket');
-  expect(Blackfire.defaultConfig).toHaveProperty('serverId');
-  expect(Blackfire.defaultConfig).toHaveProperty('serverToken');
   expect(Blackfire.defaultConfig).toHaveProperty('uploadTimeoutMillis');
   expect(Blackfire.defaultConfig).toHaveProperty('labels');
-  expect(Object.keys(Blackfire.defaultConfig)).toHaveLength(6);
+  expect(Object.keys(Blackfire.defaultConfig)).toHaveLength(4);
 });

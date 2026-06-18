@@ -8,8 +8,6 @@ expectType<boolean>(start({ appName: 'my-app' }));
 expectType<boolean>(start({
   appName: 'my-app',
   agentSocket: 'tcp://127.0.0.1:8307',
-  serverId: 'server-id',
-  serverToken: 'server-token',
   labels: { env: 'production' },
   uploadTimeoutMillis: 5000,
 }));
