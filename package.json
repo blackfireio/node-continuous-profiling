@@ -25,8 +25,7 @@
   "author": "blackfire.io",
   "license": "MIT",
   "dependencies": {
-    "dd-trace": "^5.92.0",
-    "winston": "^3.9.0"
+    "dd-trace": "^5.92.0"
   },
   "devDependencies": {
     "@stylistic/eslint-plugin": "^2.9.0",

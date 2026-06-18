@@ -1,32 +1,9 @@
 const os = require('os');
-const winston = require('winston');
 const ddtrace = require('dd-trace');
+const { createLogger } = require('./logger');
 const { version } = require('../package.json');
 
-const DEFAULT_LOG_LEVEL = 1;
-const logLevels = {
-  4: 'debug',
-  3: 'info',
-  2: 'warn',
-  1: 'error',
-};
-
-// initialize logger
-const logger = winston.createLogger({
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.splat(),
-    winston.format.simple(),
-  ),
-  level: logLevels[process.env.BLACKFIRE_LOG_LEVEL || DEFAULT_LOG_LEVEL],
-});
-
-const logFile = process.env.BLACKFIRE_LOG_FILE;
-if (logFile && logFile !== 'stderr') {
-  logger.add(new winston.transports.File({ filename: logFile }));
-} else {
-  logger.add(new winston.transports.Console());
-}
+const logger = createLogger();
 
 const currentProfilingSession = {
   stop: undefined,
