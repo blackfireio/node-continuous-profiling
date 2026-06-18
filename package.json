@@ -25,7 +25,6 @@
   "author": "blackfire.io",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.26.1",
     "dd-trace": "^5.92.0",
     "winston": "^3.9.0"
   },
