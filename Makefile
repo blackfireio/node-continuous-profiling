@@ -11,6 +11,8 @@ else
 endif
 
 NODE_VERSION ?= latest
+# Optional: pin dd-trace to a specific version to test against the bounds of the supported range.
+DD_TRACE_VERSION ?=
 ON_NODE_PRUNE=docker run --rm -w /workspace -v $(shell pwd):/workspace node:$(NODE_VERSION)
 
 ##
@@ -49,7 +51,7 @@ print-version:
 ##
 ### Npm
 ##
-npm-install: package-lock.json ## Install node dependencies
+npm-install: pin-dd-trace ## Install node dependencies
 .PHONY: npm-install
 
 package-lock.json:
@@ -58,6 +60,18 @@ ifdef GITLAB_CI
 else
 	$(ON_NODE) npm install
 endif
+
+# When DD_TRACE_VERSION is set, force that version into node_modules on every run so a
+# cached package-lock.json can't leave a stale dd-trace behind.
+pin-dd-trace: package-lock.json
+ifneq ($(DD_TRACE_VERSION),)
+ifdef GITLAB_CI
+	$(ON_NODE_PRUNE) npm install --no-save dd-trace@$(DD_TRACE_VERSION)
+else
+	$(ON_NODE) npm install --no-save dd-trace@$(DD_TRACE_VERSION)
+endif
+endif
+.PHONY: pin-dd-trace
 
 npm-clear: ## Delete local dependencies
 	rm -rf ./package-lock.json ./node_modules

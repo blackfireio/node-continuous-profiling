@@ -8,7 +8,7 @@ Under the hood, this profiler uses [Datadog's dd-trace-js](https://github.com/Da
 
 ## Prerequisites
 
-* Node.js >= 16.0.0
+* Node.js >= 18.0.0
 * Blackfire Agent >= 2.13.0
 
 ## Installation

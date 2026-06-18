@@ -24,6 +24,9 @@
   },
   "author": "blackfire.io",
   "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "dd-trace": "^5.92.0"
   },
