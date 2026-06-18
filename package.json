@@ -27,10 +27,7 @@
   "dependencies": {
     "axios": "^0.26.1",
     "dd-trace": "^5.92.0",
-    "debug": "^4.3.3",
-    "form-data": "^4.0.0",
-    "winston": "^3.9.0",
-    "yarn": "^1.22.22"
+    "winston": "^3.9.0"
   },
   "devDependencies": {
     "@stylistic/eslint-plugin": "^2.9.0",
