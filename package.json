@@ -33,7 +33,7 @@
   "devDependencies": {
     "@stylistic/eslint-plugin": "^2.9.0",
     "eslint": "^9.13.0",
-    "express": "^4.18.2",
+    "express": "^5.0.0",
     "express-fileupload": "^1.4.0",
     "globals": "^15.11.0",
     "jest": "^30.0.0",
