@@ -31,8 +31,9 @@
     "dd-trace": "^5.92.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.0",
     "@stylistic/eslint-plugin": "^5.0.0",
-    "eslint": "^9.13.0",
+    "eslint": "^10.0.0",
     "express": "^5.0.0",
     "express-fileupload": "^1.4.0",
     "globals": "^15.11.0",
