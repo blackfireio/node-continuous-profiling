@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+* v1.2.0 (2026-08-21)
+
+  - Internal releasing changes
+  - Upgrade to eslint 10
+  - Update dependencies
+  - [node-tracing] Remove dead serverId/serverToken config
+  - [node-tracing] Expand CI matrix (Node 18-26 × dd-trace bounds); require Node >= 18
+  - [node-tracing] Replace winston with a small built-in logger
+  - [node-tracing] Remove vulnerable, unused axios dependency
+  - [node-tracing] Drop unused runtime deps (yarn, form-data, debug)
+
 * v1.1.17 (2026-03-31)
 
   - Internal releasing changes

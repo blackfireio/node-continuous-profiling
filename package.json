@@ -1,6 +1,6 @@
 {
   "name": "@blackfireio/node-tracing",
-  "version": "1.1.17",
+  "version": "1.2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/blackfireio/node-continuous-profiling"
@@ -16,7 +16,7 @@
     }
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "scripts": {
     "test": "jest --no-cache --runInBand --forceExit --detectOpenHandles --coverage",
@@ -24,9 +24,6 @@
   },
   "author": "blackfire.io",
   "license": "MIT",
-  "engines": {
-    "node": ">=18.0.0"
-  },
   "dependencies": {
     "dd-trace": "^5.92.0"
   },
